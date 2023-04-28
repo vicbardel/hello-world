@@ -1,0 +1,30 @@
+let lastFocusedElement; // Add this line to store the last focused element
+
+function toggletext(id) {
+    let modal = document.getElementById("myModal" + id);
+    let span = document.getElementById("close" + id);
+
+    lastFocusedElement = document.activeElement; // Save the currently focused element before opening the modal
+
+    modal.style.display = "block";
+    modal.classList.add("show");
+    span.focus();
+
+    span.onclick = function () {
+        modal.style.display = "none";
+        modal.classList.remove("show");
+        if (lastFocusedElement) { // Check if lastFocusedElement is defined
+            lastFocusedElement.focus(); // Set the focus back to the previously focused element
+        }
+    }
+
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+            modal.classList.remove("show");
+            if (lastFocusedElement) { // Check if lastFocusedElement is defined
+                lastFocusedElement.focus(); // Set the focus back to the previously focused element
+            }
+        }
+    }
+}
