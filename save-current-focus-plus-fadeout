@@ -17,16 +17,22 @@ function toggletext(id) {
     // Display the modal and add the 'show' class to it
     modal.style.display = "block";
     modal.classList.add("show");
-    
+
     // Focus the close button (span)
     span.focus();
+
+    // Create a div for the fade-out effect and add it to the body
+    let fadeout = document.createElement('div');
+    fadeout.setAttribute('id', 'fadeoutID');
+    fadeout.setAttribute('class', 'modal-backdrop fade show');
+    document.body.appendChild(fadeout);
 
     // Add a keydown event listener to the modal to trap focus within it
     modal.addEventListener('keydown', function (event) {
         trapFocus(event, span);
     });
 
-    // When the close button (span) is clicked, hide the modal and remove the 'show' class
+    // When the close button (span) is clicked, hide the modal, remove the 'show' class, and restore focus to the previous element
     span.onclick = function () {
         modal.style.display = "none";
         modal.classList.remove("show");
@@ -35,9 +41,12 @@ function toggletext(id) {
         if (lastFocusedElement) {
             lastFocusedElement.focus();
         }
+
+        // Remove the fade-out effect
+        document.getElementById("fadeoutID").remove();
     }
 
-    // When clicking outside the modal, hide it and remove the 'show' class
+    // When clicking outside the modal, hide it, remove the 'show' class, and restore focus to the previous element
     window.onclick = function (event) {
         if (event.target == modal) {
             modal.style.display = "none";
@@ -47,6 +56,9 @@ function toggletext(id) {
             if (lastFocusedElement) {
                 lastFocusedElement.focus();
             }
+
+            // Remove the fade-out effect
+            document.getElementById("fadeoutID").remove();
         }
     }
 }
