@@ -1,0 +1,28 @@
+/**
+ * Handles the actions to be performed when a user interacts with a location option
+ * (either by clicking or pressing Enter/Space key) by updating the input field value,
+ * closing the list of location options, updating the filters, and updating the UI.
+ *
+ * @param {HTMLElement} target - The target element representing the location option.
+ */
+function handleLocationOptions(target) {
+    // Update the input field value with the selected location option
+    h.value = target.getAttribute("data-value");
+    
+    // Close the list of location options
+    ysi.corpsearchfilter.closeAllLists(h);
+    
+    // Update the filters with the selected location option
+    ysi.corpsearchfilter.corpfilter.citystate = h.value;
+    ysi.corpsearchfilter.corpfilter.viewport = "";
+    ysi.corpsearchfilter.corpfilter.geopickertype = "";
+    
+    // Perform filtering using the updated filters
+    ysi.corpsearchfilter.filterfunction();
+    
+    // Set focus back to the input field
+    h.focus();
+    
+    // Update the UI with the selected location option
+    g && (g.textContent = `${ysi.utils.translateText("PROPERTIES NEAR")}` + `${h.value}`);
+}
