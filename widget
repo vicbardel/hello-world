@@ -1,0 +1,221 @@
+abc.accessibilityWidget = function(window, document, undefined) {
+    "use strict";
+    let html = document.querySelector("html")
+      , body = document.querySelector("body")
+      , colorAdjustment = document.getElementById("colorAdjustment")
+      , acsButton = document.getElementById("acsBtn")
+      , acsCheck = document.getElementById("acsCheck")
+      , colorAdjustmentData = document.querySelectorAll("[data-ysi-acs-color-adjustment]")
+      , textScalingData = document.querySelector("[data-ysi-acs-text-scaling]")
+      , acsModalDialog = document.querySelector("#acsModal .modal-dialog")
+      , closeModalDialog = document.querySelector("#closeModalToggle .modal-dialog")
+      , acsWidget = document.querySelector("#acsWidget")
+      , resetAcs = document.querySelector("#resetAcs")
+      , acsAdjustmentDescription = document.querySelector(".acs-adjustment-description")
+      , zoomLevels = ["", "1.1", "1.3"]
+      , currentZoomLevel = zoomLevels[0]
+      , textSizeClasses = ["", "acs-large", "acs-extra-large"]
+      , currentTextSizeClass = textSizeClasses[0]
+      , textSizeIndex, textSizeLabels = ["", "Large", "Extra Large"] 
+      ,  textSizeCounter = 0 
+      ,  largeIndicator = document.querySelector("span[data-ysi-acs-indicator-large]")
+      ,  extraLargeIndicator = document.querySelector("span[data-ysi-acs-indicator-extra-large]");
+// some code...
+    /**
+     * Adjusts the text size based on the user's browser.
+     */
+    function adjustTextSize() {
+        // Check if the user's browser is Firefox.
+        const isFirefox = navigator.userAgent.match(/firefox|fxios/i);
+        /**
+         * Adjusts the text size and stores the new size in a cookie.
+         * 
+         * @param {HTMLElement} descriptionElement - The HTML element containing the text size description.
+         * @param {Array} textSizes - The array of possible text sizes.
+         * @param {string} textSizeStorageKey - The key to use when storing the text size in a cookie.
+         * @param {Function} attributeUpdater - The function to call to update the relevant attribute(s) on the body element.
+         */
+        const adjustSize = (descriptionElement, textSizes, textSizeStorageKey, attributeUpdater) => {
+            const currentSizeLabel = descriptionElement.innerHTML;
+            // Determine the index of the current text size.
+            let sizeIndex = currentSizeLabel === "Large" ? 2 : 
+                            currentSizeLabel === "Extra Large" ? 3 : 1;
+            // Calculate the index of the new text size.
+            const newSizeIndex = (sizeIndex + textSizeCounter) % textSizes.length;
+            const newSize = textSizes[newSizeIndex];
+            // Update the description element and the body element.
+            descriptionElement.innerHTML = newSize;
+            attributeUpdater(newSize);
+            // Store the new text size in a cookie.
+            setCookie(textSizeStorageKey, newSize);
+        };
+        // Adjust the text size differently depending on whether or not the user's browser is Firefox.
+        if (isFirefox) {
+            adjustSize(acsAdjustmentDescription, textSizeLabels, "textDataSize", newSize => {
+                currentTextSizeClass = textSizeClasses[newSizeIndex];
+                body.setAttribute("data-ysi-textSize", currentTextSizeClass);
+            });
+        } else {
+            adjustSize(acsAdjustmentDescription, zoomLevels, "textSize", newSize => {
+                currentZoomLevel = newSize;
+                body.style.zoom = currentZoomLevel;
+            });
+        }
+    }
+    /**
+     * Stores a key-value pair in a cookie.
+     * 
+     * @param {string} key - The key to use.
+     * @param {string} value - The value to store.
+     */
+    function setCookie(key, value) {
+        document.cookie = `${key}=${value};path=/`;
+    }
+
+    /**
+     * Handles the text scaling logic when the ".acs-text-enlarge-choice" element is clicked.
+     *
+     * @param {HTMLElement} clickedElement - The clicked element.
+     */
+    function handleTextScaling(clickedElement) {
+        const textEnlargeChoice = clickedElement.closest(".acs-text-enlarge-choice");
+        // Update text size
+        adjustTextSize();
+
+        // Active class
+        const activeClass = "acs-active";
+
+        // Check the current text size and update UI
+        if (adjustmentDescription.textContent.includes("Large") || adjustmentDescription.textContent.includes("Extra")) {
+            textScaleElement.setAttribute("aria-pressed", "true");
+            updateUIForLargeAndExtraLargeText(textEnlargeChoice, activeClass);
+        } else {
+            textEnlargeChoice.classList.remove(activeClass);
+            textScaleElement.setAttribute("aria-pressed", "false");
+            updateUIForRegularText(textEnlargeChoice);
+        }
+    }
+
+    /**
+     * Closes the widget when the "#closeAccs" element is clicked.
+     */
+    function handleCloseWidget() {
+        accsButton.classList += " d-none";
+        htmlElement.setAttribute("class", "");
+        setCookie("acsDismiss", "d-none");
+        setCookie("htmlCookieclass", "");
+        setCookie("textSize", "");
+        setCookie("textDataSize", "");
+        console.log("remove ACS widget");
+    }
+
+    /**
+     * Changes the color when the ".acs-color-choice" element is clicked.
+     *
+     * @param {HTMLElement} clickedElement - The clicked element.
+     */
+    function handleColorChange(clickedElement) {
+        const colorChoiceElement = clickedElement.closest(".acs-color-choice");
+        toggleActiveClass(colorChoiceElement, "acs-active");
+
+        if (colorAdjustment && colorAdjustmentElements) {
+            updateColorChoice();
+        }
+
+        if (colorAdjustmentElements) {
+            colorAdjustmentElements.forEach(function(element) {
+                if (htmlElement) {
+                    setCookie("htmlCookieclass", htmlElement.className.split(" "));
+                    console.log("HTML class logged");
+                    console.log(document.cookie);
+                }
+            });
+        }
+    }
+
+    /**
+     * Closes the modal when the "#acsModal" or "#acsClose" element is clicked.
+     *
+     * @param {HTMLElement} clickedElement - The clicked element.
+     */
+    function handleCloseModal(clickedElement) {
+        const adjustmentElements = document.querySelectorAll(".acs-adjustment");
+        const activeClass = "acs-active";
+        let activeElementIndex;
+
+        // Find the active element
+        for (let i = 0; i < adjustmentElements.length; i++) {
+            if (adjustmentElements[i].classList.contains(activeClass)) {
+                activeElementIndex = i;
+            }
+        }
+
+        // Update the visibility of the checkbox
+        const activeElement = adjustmentElements[activeElementIndex];
+        if (activeElement !== undefined) {
+            accsCheckbox.classList.remove("invisible");
+        } else {
+            accsCheckbox.classList.add("invisible");
+        }
+    }
+
+    /**
+     * Update UI for "Large" and "Extra Large" text sizes.
+     *
+     * @param {HTMLElement} element - The element that was clicked.
+     * @param {string} activeClass - The CSS class to apply for active state.
+     */
+    function updateUIForLargeAndExtraLargeText(element, activeClass) {
+        element.classList.add(activeClass);
+
+        if (adjustmentDescription.textContent === "Large") {
+            largeIndicator.classList.add("acs-active");
+            element.setAttribute("data-original-title", "Click button to cycle between regular, large, and extra large text sizes. Current size is large.");
+            element.querySelector("#acs-size-tooltip").innerText = "Click button to cycle between regular, large, and extra large text sizes. Current size is large.";
+            element.querySelector("#SizeButtonPress").innerText = "Text size changed to large.";
+        } else if (adjustmentDescription.textContent === "Extra Large") {
+            largeIndicator.classList.remove("acs-active");
+            extraLargeIndicator.classList.add("acs-active");
+            element.setAttribute("data-original-title", "Click button to cycle between regular, large, and extra large text sizes. Current size is extra large.");
+            element.querySelector("#acs-size-tooltip").innerText = "Click button to cycle between regular, large, and extra large text sizes. Current size is extra large.";
+            element.querySelector("#SizeButtonPress").innerText = "Text size changed to extra large.";
+        }
+    }
+
+    /**
+     * Update UI for "Regular" text size.
+     *
+     * @param {HTMLElement} element - The element that was clicked.
+     */
+    function updateUIForRegularText(element) {
+        element.classList.remove("acs-active");
+        textScaleElement.setAttribute("aria-pressed", "false");
+        largeIndicator.classList.remove("acs-active");
+        extraLargeIndicator.classList.remove("acs-active");
+        element.setAttribute("data-original-title", "Click button to cycle between regular, large, and extra large text sizes. Current size is regular.");
+        element.querySelector(".sr-only").innerText = "Click button to cycle between regular, large, and extra large text sizes. Current size is regular.";
+        element.querySelector("#SizeButtonPress").innerText = "Text size changed to regular.";
+    }
+    
+
+        // Register the event listener for the "click" event.
+    document.addEventListener("click", function(event) {
+        const target = event.target;
+
+        // Delegate the click event to the appropriate handler.
+        if (target.closest(".acs-text-enlarge-choice")) {
+            handleTextScaling(target);
+        } else if (target.closest("#closeAccs")) {
+            handleCloseWidget();
+        } else if (target.closest(".acs-color-choice")) {
+            handleColorChange(target);
+        } else if (target.matches("#acsModal") || target.closest("#acsClose")) {
+            handleCloseModal(target);
+        }
+    });
+
+
+}(window, document),
+abc.registerCallback(function() {
+    abc.accessibilityWidget.init()
+});
