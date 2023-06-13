@@ -110,6 +110,20 @@ abc.accessibilityWidget = function(window, document, undefined) {
     }
 
     /**
+     * Toggles the given class for the given element.
+     *
+     * @param {HTMLElement} element - The element to toggle the class on.
+     * @param {string} className - The class to toggle.
+     */
+    function toggleActiveClass(element, className) {
+        if (element.classList.contains(className)) {
+            element.classList.remove(className);
+        } else {
+            element.classList.add(className);
+        }
+    }
+
+    /**
      * Changes the color when the ".acs-color-choice" element is clicked.
      *
      * @param {HTMLElement} clickedElement - The clicked element.
