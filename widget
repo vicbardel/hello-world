@@ -110,20 +110,22 @@ abc.accessibilityWidget = function(window, document, undefined) {
     }
 
     /**
-     * Toggles the given class for the given element. Removes the class from all sibling elements and the element itself if it was selected again.
+     * Toggles the given class for the given element. 
+     * If the class is already present, it removes it; otherwise, it adds the class and removes it from all sibling elements.
      *
      * @param {HTMLElement} element - The element to toggle the class on.
      * @param {string} className - The class to toggle.
      */
     function toggleActiveClass(element, className) {
-        // Get all siblings
-        let siblings = Array.from(element.parentNode.children);
-    
-        // Remove the class from all siblings
-        siblings.forEach(sibling => sibling.classList.remove(className));
-    
-        // Toggle the class for the selected element
-        element.classList.toggle(className);
+        // If the class is already present, remove it
+        if (element.classList.contains(className)) {
+            element.classList.remove(className);
+        } else {
+            // Otherwise, add the class and remove it from all sibling elements
+            let siblings = Array.from(element.parentNode.children);
+            siblings.forEach(sibling => sibling.classList.remove(className));
+            element.classList.add(className);
+        }
     }
 
     /**
