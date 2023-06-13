@@ -110,17 +110,24 @@ abc.accessibilityWidget = function(window, document, undefined) {
     }
 
     /**
-     * Toggles the given class for the given element.
+     * Toggles the given class for the given element. Removes the class from all sibling elements.
      *
      * @param {HTMLElement} element - The element to toggle the class on.
      * @param {string} className - The class to toggle.
      */
     function toggleActiveClass(element, className) {
-        if (element.classList.contains(className)) {
-            element.classList.remove(className);
-        } else {
-            element.classList.add(className);
-        }
+        // Get all siblings
+        let siblings = Array.from(element.parentNode.children);
+    
+        // Remove the class from all siblings
+        siblings.forEach(sibling => {
+            if (sibling.classList.contains(className)) {
+                sibling.classList.remove(className);
+            }
+        });
+    
+        // Add the class to the selected element
+        element.classList.add(className);
     }
 
     /**
