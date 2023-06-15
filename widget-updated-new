@@ -171,15 +171,6 @@ function setTextSizeAttributes(elem, cls, isLargeOrExtra) {
     checkActiveButtons();
 }
 
-function setTooltipAndInnerText(elem, size) {
-    let tooltipText = `Click button to cycle between regular, large, and extra large text sizes. Current size is ${size}.`;
-    elem.setAttribute("data-original-title", tooltipText);
-    elem.querySelector("#acs-size-tooltip").innerText = tooltipText;
-
-    let buttonText = `Text size changed to ${size}.`;
-    elem.querySelector("#SizeButtonPress").innerText = buttonText;
-}
-
 function logHtmlClassAndCookies() {
     if (html) {
         setCookie("htmlCookieclass", html.className.split(" "));
