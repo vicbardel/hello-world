@@ -110,6 +110,38 @@ abc.accessibilityWidget = (function (window, document, undefined) {
             removeTextSizeAttributes(elem, cls);
         }
     }
+    
+    // Handle Text Button text (lol)
+    function setTextSizeAttributes(elem, cls, isLargeOrExtra) {
+    if (isLargeOrExtra) {
+        elem.classList.add(cls);
+        textAdjustment.setAttribute("aria-pressed", "true");
+
+        if (textAdjDesc.textContent === "Large") {
+            acsLarge.classList.add("acs-active");
+            setTooltipAndInnerText(elem, "large");
+        } else if (textAdjDesc.textContent === "Extra Large") {
+            acsLarge.classList.remove("acs-active");
+            acsExtraLarge.classList.add("acs-active");
+            setTooltipAndInnerText(elem, "extra large");
+        }
+    } else {
+        elem.classList.remove(cls);
+        textAdjustment.setAttribute("aria-pressed", "false");
+        acsLarge.classList.remove("acs-active");
+        acsExtraLarge.classList.remove("acs-active");
+        setTooltipAndInnerText(elem, "regular");
+    }
+}
+
+function setTooltipAndInnerText(elem, size) {
+    let tooltipText = `Click button to cycle between regular, large, and extra large text sizes. Current size is ${size}.`;
+    elem.setAttribute("data-original-title", tooltipText);
+    elem.querySelector("#acs-size-tooltip").innerText = tooltipText;
+
+    let buttonText = `Text size changed to ${size}.`;
+    elem.querySelector("#SizeButtonPress").innerText = buttonText;
+}
 
     // Handle widget close
     function handleCloseWidget(e) {
