@@ -129,6 +129,25 @@ abc.accessibilityWidget = (function (window, document, undefined) {
             applyColorAdjustments();
         }
     }
+    
+    function applyColorAdjustments() {
+        if (colorGroup) {
+            acsCheckMark.classList.add(INVISIBLE);
+            html.setAttribute("class", "");
+            acsButton.setAttribute("data-acs-applied", "");
+
+            colorAdjustment.forEach((colorOption) => {
+                if (colorOption.classList.contains(ACS_ACTIVE)) {
+                    let contrast = colorOption.getAttribute("data-ysi-acs-color");
+                    html.setAttribute("class", contrast);
+                    acsButton.setAttribute("data-acs-applied", contrast);
+                    colorOption.setAttribute("aria-pressed", "true");
+                } else {
+                    colorOption.setAttribute("aria-pressed", "false");
+                }
+            });
+        }
+    }
 
     // Handle modal close
     function handleModalClose(e) {
