@@ -143,6 +143,72 @@ function setTooltipAndInnerText(elem, size) {
     elem.querySelector("#SizeButtonPress").innerText = buttonText;
 }
 
+function setTextSizeAttributes(elem, cls, isLargeOrExtra) {
+    if (isLargeOrExtra) {
+        elem.classList.add(cls);
+        textAdjustment.setAttribute("aria-pressed", "true");
+
+        if (textAdjDesc.textContent === "Large") {
+            acsLarge.classList.add("acs-active");
+            setTooltipAndInnerText(elem, "large");
+        } else if (textAdjDesc.textContent === "Extra Large") {
+            acsLarge.classList.remove("acs-active");
+            acsExtraLarge.classList.add("acs-active");
+            setTooltipAndInnerText(elem, "extra large");
+        }
+    } else {
+        elem.classList.remove(cls);
+        textAdjustment.setAttribute("aria-pressed", "false");
+        acsLarge.classList.remove("acs-active");
+        acsExtraLarge.classList.remove("acs-active");
+        setTooltipAndInnerText(elem, "regular");
+    }
+
+    // These operations were originally part of the `colorAdjustment.forEach()` function
+    logHtmlClassAndCookies();
+
+    // The code block under `e.target.matches("#acsModal") || e.target.closest("#acsClose")`
+    checkActiveButtons();
+}
+
+function setTooltipAndInnerText(elem, size) {
+    let tooltipText = `Click button to cycle between regular, large, and extra large text sizes. Current size is ${size}.`;
+    elem.setAttribute("data-original-title", tooltipText);
+    elem.querySelector("#acs-size-tooltip").innerText = tooltipText;
+
+    let buttonText = `Text size changed to ${size}.`;
+    elem.querySelector("#SizeButtonPress").innerText = buttonText;
+}
+
+function logHtmlClassAndCookies() {
+    if (html) {
+        setCookie("htmlCookieclass", html.className.split(" "));
+        console.log("HTML class logged");
+        console.log(document.cookie);
+    }
+}
+
+function checkActiveButtons() {
+    const acsAllButtons = d.querySelectorAll(".acs-adjustment");
+    const substring = "acs-active";
+    let position;
+
+    for (let i = 0; i < acsAllButtons.length; i++) {
+        if (acsAllButtons[i].classList.contains(substring)) {
+            position = i;
+        }
+    }
+
+    const found = acsAllButtons[position];
+    console.log(found);
+
+    if (found !== undefined) {
+        acsCheckMark.classList.remove("invisible");
+    } else {
+        acsCheckMark.classList.add("invisible");
+    }
+}
+
     // Handle widget close
     function handleCloseWidget(e) {
         if (e.target.closest("#closeAccs")) {
