@@ -1,0 +1,168 @@
+abc.accessibilityWidget = (function (window, document, undefined) {
+    "use strict";
+    
+    // Constants for repeated string values
+    const ACS_ACTIVE = "acs-active";
+    const ACS_LARGE = "acs-large";
+    const ACS_EXTRA_LARGE = "acs-extra-large";
+    const REGULAR = "regular";
+    const LARGE = "Large";
+    const EXTRA_LARGE = "Extra Large";
+    
+    // DOM elements
+    const html = document.querySelector("html"),
+        body = document.querySelector("body"),
+        colorGroup = document.getElementById("colorAdjustment"),
+        acsButton = document.getElementById("acsBtn"),
+        acsCheckMark = document.getElementById("acsCheck"),
+        colorAdjustment = document.querySelectorAll("[data-ysi-acs-color-adjustment]"),
+        textAdjustment = document.querySelector("[data-ysi-acs-text-scaling]"),
+        firstModal = document.querySelector("#acsModal .modal-dialog"),
+        secondModal = document.querySelector("#closeModalToggle .modal-dialog"),
+        acsWidgetBtn = document.querySelector("#acsWidget"),
+        resetAcs = document.querySelector("#resetAcs"),
+        textAdjDesc = document.querySelector(".acs-adjustment-description"),
+        acsLarge = document.querySelector("span[data-ysi-acs-indicator-large]"),
+        acsExtraLarge = document.querySelector("span[data-ysi-acs-indicator-extra-large]");
+    
+    // Text scaling options
+    const enlargeTextStyle = ["", "1.1", "1.3"],
+        enlargeClasses = ["", ACS_LARGE, ACS_EXTRA_LARGE],
+        textArray = ["", LARGE, EXTRA_LARGE];
+
+    let zoomPrint = enlargeTextStyle[0],
+        scalePrint = enlargeClasses[0],
+        start,
+        count = 0;
+
+    // Set cookie
+    function setCookie(name, value) {
+        document.cookie = name + "=" + value + ";path=/";
+    }
+
+    // Adjust text size based on browser
+    function adjustTextSize(element, objArray) {
+        let browser = navigator.userAgent.match(/firefox|fxios/i) ? "firefox" : "Not Firefox";
+        console.warn(browser);
+
+        let start = calculateStart(element);
+        console.warn("Count is " + count);
+
+        let index = (start + count) % objArray.length;
+        console.warn("Index is " + index);
+
+        element.innerHTML = objArray[index];
+
+        if (browser === "firefox") {
+            scalePrint = enlargeClasses[index];
+            body.setAttribute("data-ysi-textSize", scalePrint);
+            setCookie("textDataSize", scalePrint);
+        } else {
+            zoomPrint = enlargeTextStyle[index];
+            body.style.zoom = zoomPrint;
+            setCookie("textSize", zoomPrint);
+        }
+    }
+
+    // Calculate start based on current text size
+    function calculateStart(element) {
+        if (element.innerHTML === LARGE) {
+            console.warn("Started from Large");
+            return 2;
+        } else if (element.innerHTML === EXTRA_LARGE) {
+            console.warn("Started from Extra Large");
+            return 3;
+        } else {
+            console.warn("Started from Default");
+            return 1;
+        }
+    }
+
+    // Event listener functions
+    function handleAccessibilityButton(button) {
+        const modal = new Modal(button);
+        button.addEventListener("click", function () {
+            modal.show();
+            opendialog("acsOptions", "", "");
+            opendialog("confirmModal", "", "");
+        });
+    }
+
+    function handleClickEvent(e) {
+        handleTextScaling(e);
+        handleCloseWidget(e);
+        handleColorChoice(e);
+        handleModalClose(e);
+    }
+
+    // Handle text scaling
+    function handleTextScaling(e);
+
+    if (e.target.closest(".acs-text-enlarge-choice")) {
+        console.log("text scaling selected");
+        adjustTextSize(textAdjDesc, textArray);
+        let elem = e.target.closest(".acs-text-enlarge-choice"),
+            cls = ACS_ACTIVE;
+
+        if (textAdjDesc.textContent.includes(LARGE) || textAdjDesc.textContent.includes(EXTRA_LARGE)) {
+            setTextSizeAttributes(elem, cls, true);
+        } else {
+            removeTextSizeAttributes(elem, cls);
+        }
+    }
+
+    // Handle widget close
+    function handleCloseWidget(e) {
+        if (e.target.closest("#closeAccs")) {
+            acsButton.classList += " d-none";
+            html.setAttribute("class", "");
+            resetAllCookies();
+            console.log("remove ACS widget");
+        }
+    }
+
+    // Handle color choice
+    function handleColorChoice(e) {
+        if (e.target.closest(".acs-color-choice")) {
+            console.log("Color logged");
+            toggleActiveClass(e.target.closest(".acs-color-choice"), ACS_ACTIVE);
+            applyColorAdjustments();
+        }
+    }
+
+    // Handle modal close
+    function handleModalClose(e) {
+        if (e.target.matches("#acsModal") || e.target.closest("#acsClose")) {
+            checkForActiveAdjustments();
+        }
+    }
+
+    // Initialization
+    function init() {
+        if (acsWidgetBtn) {
+            let alignment = acsWidgetBtn.classList.contains("widget-left") ? " modal-left" : " modal-right";
+            firstModal.classList += alignment;
+            secondModal.classList += alignment;
+            resetAcs.addEventListener("click", function () {
+                html.setAttribute("class", "");
+                resetAllCookies();
+                window.location.href = window.location.href.split("#")[0];
+                console.log("Reset Cookies");
+            });
+        }
+    }
+
+    // Set up event listeners
+    if (document.querySelector("#blogcontent")) {
+        document.querySelectorAll(".accessibility-button").forEach(handleAccessibilityButton);
+    }
+    document.addEventListener("click", handleClickEvent);
+
+    return {
+        init
+    };
+})(window, document);
+
+abc.registerCallback(function () {
+    abc.accessibilityWidget.init();
+});
