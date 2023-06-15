@@ -1,0 +1,164 @@
+abc.accessibilityWidget = (function(window, document, undefined) {
+    "use strict";
+    
+    // Helper functions
+    function $(selector) {
+        return document.querySelector(selector);
+    }
+    
+    function $$(selector) {
+        return document.querySelectorAll(selector);
+    }
+    
+    function byId(id) {
+        return document.getElementById(id);
+    }
+    
+    function setCookies(cookies) {
+        for (let [key, value] of Object.entries(cookies)) {
+            document.cookie = `${key}=${value};path=/`;
+        }
+    }
+
+    // Selectors
+    let html = $("html"),
+        body = $("body"),
+        colorAdjustment = byId("colorAdjustment"),
+        acsButton = byId("acsBtn"),
+        acsCheck = byId("acsCheck"),
+        colorAdjustmentData = $$("[data-ysi-acs-color-adjustment]"),
+        textScalingData = $("[data-ysi-acs-text-scaling]"),
+        acsModalDialog = $("#acsModal .modal-dialog"),
+        closeModalDialog = $("#closeModalToggle .modal-dialog"),
+        acsWidget = $("#acsWidget"),
+        resetAcs = $("#resetAcs"),
+        acsAdjustmentDescription = $(".acs-adjustment-description"),
+        zoomLevels = ["", "1.1", "1.3"],
+        currentZoomLevel = zoomLevels[0],
+        textSizeClasses = ["", "acs-large", "acs-extra-large"],
+        currentTextSizeClass = textSizeClasses[0],
+        textSizeIndex,
+        textSizeLabels = ["", "Large", "Extra Large"],
+        textSizeCounter = 0,
+        largeIndicator = $("span[data-ysi-acs-indicator-large]"),
+        extraLargeIndicator = $("span[data-ysi-acs-indicator-extra-large]");
+
+    /**
+     * Adjusts the text size based on the user's browser.
+     * This function checks if the user's browser is Firefox, and then calls adjustSize with the appropriate parameters.
+     */
+    function adjustTextSize() {
+        // Check if the user's browser is Firefox
+        const isFirefox = navigator.userAgent.match(/firefox|fxios/i);
+
+        // If the user's browser is Firefox, adjust the text size using the text data size. Otherwise, adjust the text size using the zoom level.
+        adjustSize(isFirefox ? 'textDataSize' : 'textSize', isFirefox);
+    }
+
+    /**
+     * Adjusts the text size and stores the new size in a cookie.
+     * This function is called by adjustTextSize. It takes two parameters: the key to use when storing the text size in a cookie, 
+     * and a boolean that indicates whether the user's browser is Firefox.
+     *
+     * @param {string} cookieKey - The key to use when storing the text size in a cookie.
+     * @param {boolean} isFirefox - Whether the user's browser is Firefox.
+     */
+    function adjustSize(cookieKey, isFirefox) {
+        // Get the current size label
+        const currentSizeLabel = acsAdjustmentDescription.innerHTML;
+
+        // Determine the index of the current text size
+        let sizeIndex = currentSizeLabel === "Large" ? 2 : 
+                        currentSizeLabel === "Extra Large" ? 3 : 1;
+
+        // Calculate the index of the new text size
+        const newSizeIndex = (sizeIndex + textSizeCounter) % (isFirefox ? textSizeLabels : zoomLevels).length;
+        const newSize = (isFirefox ? textSizeLabels : zoomLevels)[newSizeIndex];
+
+        // Update the description element and the body element
+        acsAdjustmentDescription.innerHTML = newSize;
+
+        if (isFirefox) {
+            currentTextSizeClass = textSizeClasses[newSizeIndex];
+            body.setAttribute("data-ysi-textSize", currentTextSizeClass);
+        } else {
+            currentZoomLevel = newSize;
+            body.style.zoom = currentZoomLevel;
+        }
+
+        // Store the new text size in a cookie
+        setCookies(cookieKey, newSize);
+    }
+
+    function handleTextScaling(clickedElement) {
+        const textEnlargeChoice = clickedElement.closest(".acs-text-enlarge-choice");
+        adjustTextSize();
+        
+        const activeClass = "acs-active";
+
+        if (acsAdjustmentDescription.textContent.includes("Large") || acsAdjustmentDescription.textContent.includes("Extra")) {
+            textScalingData.setAttribute("aria-pressed", "true");
+            updateUIForLargeAndExtraLargeText(textEnlargeChoice, activeClass);
+        } else {
+            textEnlargeChoice.classList.remove(activeClass);
+            textScalingData.setAttribute("aria-pressed", "false");
+            updateUIForRegularText(textEnlargeChoice);
+        }
+    }
+
+    function handleCloseWidget() {
+        acsButton.classList.add("d-none");
+        html.setAttribute("class", "");
+        setCookies({
+            acsDismiss: "d-none",
+            htmlCookieclass: "",
+            textSize: "",
+            textDataSize: "",
+        });
+        console.log("remove ACS widget");
+    }
+
+    function handleColorChange(clickedElement) {
+        const colorChoiceElement = clickedElement.closest(".acs-color-choice");
+        toggleActiveClass(colorChoiceElement, "acs-active");
+
+        if (colorAdjustment && colorAdjustmentData) {
+            updateColorChoice();
+        }
+
+        colorAdjustmentData.forEach(() => {
+            if (html) {
+                setCookies("htmlCookieclass", html.className.split(" "));
+                console.log("HTML class logged");
+                console.log(document.cookie);
+            }
+        });
+    }
+
+    /**
+     * Register the event listener for the "click" event.
+     * This function handles various click events within the accessibility widget.
+     */
+    document.addEventListener("click", function(event) {
+        const target = event.target;
+
+        // Delegate the click event to the appropriate handler.
+        if (target.closest(".acs-text-enlarge-choice")) {
+            handleTextScaling(target);
+        } else if (target.closest("#closeAccs")) {
+            handleCloseWidget();
+        } else if (target.closest(".acs-color-choice")) {
+            handleColorChange(target);
+        } else if (target.matches("#acsModal") || target.closest("#acsClose")) {
+            handleCloseModal(target);
+        }
+    });
+
+    return {
+        init: init
+    };
+})(window, document);
+
+abc.registerCallback(function() {
+    abc.accessibilityWidget.init();
+});
