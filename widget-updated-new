@@ -93,6 +93,7 @@ abc.accessibilityWidget = (function (window, document, undefined) {
         handleCloseWidget(e);
         handleColorChoice(e);
         handleModalClose(e);
+        handleResetAcs(e);
     }
 
     // Handle text scaling
@@ -246,13 +247,30 @@ function checkActiveButtons() {
     }
 
     // Reset widget
-    function resetAllCookies() {
+    function resetAllCookies(refreshPage, classModification, dismissValue) {
+        if (classModification !== undefined) {
+            acsButton.classList += classModification;
+        }
+    
         html.setAttribute("class", "");
+        setCookie("acsDismiss", dismissValue);
         setCookie("htmlCookieclass", "");
         setCookie("textSize", "");
         setCookie("textDataSize", "");
-        window.location.href = window.location.href.split("#")[0];
-        console.log("Reset Cookies");
+    
+        if (refreshPage) {
+            window.location.href = window.location.href.split("#")[0];
+        }
+    
+        console.log(dismissValue === "d-none" ? "Remove ACS widget" : "Reset Cookies");
+    }
+
+    function handleResetAcs(e) {
+        if (e.target.closest("#resetAcs")) {
+            resetAllCookies(true);
+        } else if (e.target.closest("#closeAccs")) {
+            resetAllCookies(false, " d-none", "d-none");
+        }
     }
 
     // Initialization
