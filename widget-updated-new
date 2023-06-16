@@ -245,6 +245,16 @@ function checkActiveButtons() {
         }
     }
 
+    // Reset widget
+    function resetAllCookies() {
+        html.setAttribute("class", "");
+        setCookie("htmlCookieclass", "");
+        setCookie("textSize", "");
+        setCookie("textDataSize", "");
+        window.location.href = window.location.href.split("#")[0];
+        console.log("Reset Cookies");
+    }
+
     // Initialization
     function init() {
         if (acsWidgetBtn) {
