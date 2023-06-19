@@ -97,43 +97,21 @@ abc.accessibilityWidget = (function (window, document, undefined) {
     }
 
     // Handle text scaling
-    function handleTextScaling(e);
+    function handleTextScaling(e); {
 
-    if (e.target.closest(".acs-text-enlarge-choice")) {
-        console.log("text scaling selected");
-        adjustTextSize(textAdjDesc, textArray);
-        let elem = e.target.closest(".acs-text-enlarge-choice"),
-            cls = ACS_ACTIVE;
-
-        if (textAdjDesc.textContent.includes(LARGE) || textAdjDesc.textContent.includes(EXTRA_LARGE)) {
-            setTextSizeAttributes(elem, cls, true);
-        } else {
-            removeTextSizeAttributes(elem, cls);
-        }
-    }
+        if (e.target.closest(".acs-text-enlarge-choice")) {
+            console.log("text scaling selected");
+            adjustTextSize(textAdjDesc, textArray);
+            let elem = e.target.closest(".acs-text-enlarge-choice"),
+                cls = ACS_ACTIVE;
     
-    // Handle Text Button text (lol)
-    function setTextSizeAttributes(elem, cls, isLargeOrExtra) {
-    if (isLargeOrExtra) {
-        elem.classList.add(cls);
-        textAdjustment.setAttribute("aria-pressed", "true");
-
-        if (textAdjDesc.textContent === "Large") {
-            acsLarge.classList.add("acs-active");
-            setTooltipAndInnerText(elem, "large");
-        } else if (textAdjDesc.textContent === "Extra Large") {
-            acsLarge.classList.remove("acs-active");
-            acsExtraLarge.classList.add("acs-active");
-            setTooltipAndInnerText(elem, "extra large");
+            if (textAdjDesc.textContent.includes(LARGE) || textAdjDesc.textContent.includes(EXTRA_LARGE)) {
+                setTextSizeAttributes(elem, cls, true);
+            } else {
+                removeTextSizeAttributes(elem, cls);
+            }
         }
-    } else {
-        elem.classList.remove(cls);
-        textAdjustment.setAttribute("aria-pressed", "false");
-        acsLarge.classList.remove("acs-active");
-        acsExtraLarge.classList.remove("acs-active");
-        setTooltipAndInnerText(elem, "regular");
     }
-}
 
 function setTooltipAndInnerText(elem, size) {
     let tooltipText = `Click button to cycle between regular, large, and extra large text sizes. Current size is ${size}.`;
@@ -144,6 +122,7 @@ function setTooltipAndInnerText(elem, size) {
     elem.querySelector("#SizeButtonPress").innerText = buttonText;
 }
 
+// Handle Text Button text (lol)
 function setTextSizeAttributes(elem, cls, isLargeOrExtra) {
     if (isLargeOrExtra) {
         elem.classList.add(cls);
