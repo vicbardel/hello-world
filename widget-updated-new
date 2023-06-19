@@ -228,9 +228,9 @@ function checkActiveButtons() {
 
             colorAdjustment.forEach((colorOption) => {
                 if (colorOption.classList.contains(ACS_ACTIVE)) {
-                    let contrast = colorOption.getAttribute("data-ysi-acs-color");
-                    html.setAttribute("class", contrast);
-                    acsButton.setAttribute("data-acs-applied", contrast);
+                    let color = colorOption.getAttribute("data-ysi-acs-color");
+                    html.setAttribute("class", 'acs-' + color + '-contrast');
+                    acsButton.setAttribute("data-acs-applied", 'acs-' + color + '-contrast');
                     colorOption.setAttribute("aria-pressed", "true");
                 } else {
                     colorOption.setAttribute("aria-pressed", "false");
