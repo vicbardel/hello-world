@@ -69,6 +69,10 @@ abc.accessibilityWidget = (function (window, document, undefined) {
           element.style[prop] = styles[prop];
         }
       },
+
+      getStyle(element, property) {
+        return window.getComputedStyle(element).getPropertyValue(property);
+      },
     
       hasClass(element, className) {
         return element.classList.contains(className);
