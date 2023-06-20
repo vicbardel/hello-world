@@ -8,6 +8,7 @@ abc.accessibilityWidget = (function (window, document, undefined) {
     const REGULAR = "regular";
     const LARGE = "Large";
     const EXTRA_LARGE = "Extra Large";
+    const INVISIBLE = "d-none";
     
     // DOM elements
     const html = document.querySelector("html"),
@@ -34,6 +35,125 @@ abc.accessibilityWidget = (function (window, document, undefined) {
         scalePrint = enlargeClasses[0],
         start,
         count = 0;
+
+    // Utility functions
+    const ElementUtils = {
+        // Check if an element is visible
+        isElementVisible(element) {
+          const style = window.getComputedStyle(element);
+          return style.display !== 'none' && style.visibility !== 'hidden';
+        },
+      
+        // Check if an element is visible to screen readers
+        isElementVisibleToScreenReader(element) {
+          return element.getAttribute('aria-hidden') !== 'true';
+        }
+      };
+    
+    const MyUtils = {
+      // DOM operations
+      select(selector) {
+        return document.querySelector(selector);
+      },
+    
+      selectAll(selector) {
+        return document.querySelectorAll(selector);
+      },
+    
+      appendChild(parent, child) {
+        parent.appendChild(child);
+      },
+    
+      applyStyles(element, styles) {
+        for (let prop in styles) {
+          element.style[prop] = styles[prop];
+        }
+      },
+    
+      hasClass(element, className) {
+        return element.classList.contains(className);
+      },
+    
+      addClass(element, className) {
+        element.classList.add(className);
+      },
+    
+      removeClass(element, className) {
+        element.classList.remove(className);
+      },
+    
+      toggleClass(element, className) {
+        element.classList.toggle(className);
+      },
+    
+      hasCSSProperty(element, property) {
+        return window.getComputedStyle(element).getPropertyValue(property) !== "";
+      },
+    
+      // String operations
+      capitalize(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+      },
+    
+      truncate(str, length, ending = "...") {
+        if (str.length <= length) {
+          return str;
+        }
+        return str.substring(0, length - ending.length) + ending;
+      },
+    
+      repeat(str, count) {
+        return str.repeat(count);
+      },
+    
+      reverse(str) {
+        return str.split("").reverse().join("");
+      },
+    
+      inString(str, substring) {
+        return str.includes(substring);
+      },
+    
+      trim(str) {
+        return str.trim();
+      },
+    
+      isNumber(str) {
+        return !isNaN(str);
+      },
+    
+      removeCharacters(str, charsToRemove) {
+        return str.replace(new RegExp(`[${charsToRemove}]`, "g"), "");
+      },
+    
+      replace(str, searchValue, replaceValue) {
+        return str.replace(searchValue, replaceValue);
+      },
+    
+      removeWhitespace(str) {
+        return str.replace(/\s/g, "");
+      }
+    };
+    
+      // Usage example:
+      /**
+       * 
+      const element = MyUtils.select("#myElement");
+      MyUtils.addClass(element, "highlight");
+      
+      console.log(MyUtils.capitalize("hello")); // Output: "Hello"
+      console.log(MyUtils.truncate("Lorem ipsum dolor sit amet", 10)); // Output: "Lorem ipsu..."
+      console.log(MyUtils.repeat("abc", 3)); // Output: "abcabcabc"
+      console.log(MyUtils.reverse("Hello")); // Output: "olleH"
+      
+      console.log(MyUtils.inString("Hello, World!", "World")); // Output: true
+      console.log(MyUtils.trim("   Hello, World!   ")); // Output: "Hello, World!"
+      console.log(MyUtils.isNumber("42")); // Output: true
+      console.log(MyUtils.removeCharacters("Hello, World!", "l")); // Output: "Heo, Word!"
+      console.log(MyUtils.replace("Hello, World!", "World", "Universe")); // Output: "Hello, Universe!"
+      console.log(MyUtils.removeWhitespace(" Hello, World! ")); // Output: "Hello,World!"
+      *
+      **/
 
     // Set cookie
     function setCookie(name, value) {
@@ -78,7 +198,7 @@ abc.accessibilityWidget = (function (window, document, undefined) {
         }
     }
 
-    // Event listener functions
+    // Accessibility Modal
     function handleAccessibilityButton(button) {
         const modal = new Modal(button);
         button.addEventListener("click", function () {
@@ -98,92 +218,91 @@ abc.accessibilityWidget = (function (window, document, undefined) {
 
     // Handle text scaling
     function handleTextScaling(e); {
-
         if (e.target.closest(".acs-text-enlarge-choice")) {
             console.log("text scaling selected");
             adjustTextSize(textAdjDesc, textArray);
-            let elem = e.target.closest(".acs-text-enlarge-choice"),
-                cls = ACS_ACTIVE;
-    
+            let elem = e.target.closest(".acs-text-enlarge-choice");
+            const cls = ACS_ACTIVE;
+
             if (textAdjDesc.textContent.includes(LARGE) || textAdjDesc.textContent.includes(EXTRA_LARGE)) {
                 setTextSizeAttributes(elem, cls, true);
             } else {
-                removeTextSizeAttributes(elem, cls);
+                setTextSizeAttributes(elem, cls, false);
             }
         }
     }
 
-function setTooltipAndInnerText(elem, size) {
-    let tooltipText = `Click button to cycle between regular, large, and extra large text sizes. Current size is ${size}.`;
-    elem.setAttribute("data-original-title", tooltipText);
-    elem.querySelector("#acs-size-tooltip").innerText = tooltipText;
+    function setTooltipAndInnerText(elem, size) {
+        let tooltipText = `Click button to cycle between regular, large, and extra large text sizes. Current size is ${size}.`;
+        elem.setAttribute("data-original-title", tooltipText);
+        elem.querySelector("#acs-size-tooltip").innerText = tooltipText;
 
-    let buttonText = `Text size changed to ${size}.`;
-    elem.querySelector("#SizeButtonPress").innerText = buttonText;
-}
+        let buttonText = `Text size changed to ${size}.`;
+        elem.querySelector("#SizeButtonPress").innerText = buttonText;
+    }
 
-// Handle Text Button text (lol)
-function setTextSizeAttributes(elem, cls, isLargeOrExtra) {
-    if (isLargeOrExtra) {
-        elem.classList.add(cls);
-        textAdjustment.setAttribute("aria-pressed", "true");
+    // Handle text button content
+    function setTextSizeAttributes(elem, cls, isLargeOrExtra) {
+        if (isLargeOrExtra) {
+            elem.classList.add(cls);
+            textAdjustment.setAttribute("aria-pressed", "true");
 
-        if (textAdjDesc.textContent === "Large") {
-            acsLarge.classList.add("acs-active");
-            setTooltipAndInnerText(elem, "large");
-        } else if (textAdjDesc.textContent === "Extra Large") {
+            if (textAdjDesc.textContent === "Large") {
+                acsLarge.classList.add("acs-active");
+                setTooltipAndInnerText(elem, "large");
+            } else if (textAdjDesc.textContent === "Extra Large") {
+                acsLarge.classList.remove("acs-active");
+                acsExtraLarge.classList.add("acs-active");
+                setTooltipAndInnerText(elem, "extra large");
+            }
+        } else {
+            elem.classList.remove(cls);
+            textAdjustment.setAttribute("aria-pressed", "false");
             acsLarge.classList.remove("acs-active");
-            acsExtraLarge.classList.add("acs-active");
-            setTooltipAndInnerText(elem, "extra large");
+            acsExtraLarge.classList.remove("acs-active");
+            setTooltipAndInnerText(elem, "regular");
         }
-    } else {
-        elem.classList.remove(cls);
-        textAdjustment.setAttribute("aria-pressed", "false");
-        acsLarge.classList.remove("acs-active");
-        acsExtraLarge.classList.remove("acs-active");
-        setTooltipAndInnerText(elem, "regular");
+
+        // These operations were originally part of the `colorAdjustment.forEach()` function
+        logHtmlClassAndCookies();
+
+        // The code block under `e.target.matches("#acsModal") || e.target.closest("#acsClose")`
+        checkActiveButtons();
     }
 
-    // These operations were originally part of the `colorAdjustment.forEach()` function
-    logHtmlClassAndCookies();
-
-    // The code block under `e.target.matches("#acsModal") || e.target.closest("#acsClose")`
-    checkActiveButtons();
-}
-
-function logHtmlClassAndCookies() {
-    if (html) {
-        setCookie("htmlCookieclass", html.className.split(" "));
-        console.log("HTML class logged");
-        console.log(document.cookie);
-    }
-}
-
-function checkActiveButtons() {
-    const acsAllButtons = d.querySelectorAll(".acs-adjustment");
-    const substring = "acs-active";
-    let position;
-
-    for (let i = 0; i < acsAllButtons.length; i++) {
-        if (acsAllButtons[i].classList.contains(substring)) {
-            position = i;
+    function logHtmlClassAndCookies() {
+        if (html) {
+            setCookie("htmlCookieclass", html.className.split(" "));
+            console.log("HTML class logged");
+            console.log(document.cookie);
         }
     }
 
-    const found = acsAllButtons[position];
-    console.log(found);
+    function checkActiveButtons() {
+        const acsAllButtons = d.querySelectorAll(".acs-adjustment");
+        const substring = "acs-active";
+        let position;
 
-    if (found !== undefined) {
-        acsCheckMark.classList.remove("invisible");
-    } else {
-        acsCheckMark.classList.add("invisible");
+        for (let i = 0; i < acsAllButtons.length; i++) {
+            if (acsAllButtons[i].classList.contains(substring)) {
+                position = i;
+            }
+        }
+
+        const found = acsAllButtons[position];
+        console.log(found);
+
+        if (found !== undefined) {
+            acsCheckMark.classList.remove(INVISIBLE);
+        } else {
+            acsCheckMark.classList.add(INVISIBLE);
+        }
     }
-}
 
     // Handle widget close
     function handleCloseWidget(e) {
         if (e.target.closest("#closeAccs")) {
-            acsButton.classList += " d-none";
+            acsButton.classList.add("d-none");
             html.setAttribute("class", "");
             resetAllCookies();
             console.log("remove ACS widget");
@@ -211,10 +330,240 @@ function checkActiveButtons() {
                     html.setAttribute("class", 'acs-' + color + '-contrast');
                     acsButton.setAttribute("data-acs-applied", 'acs-' + color + '-contrast');
                     colorOption.setAttribute("aria-pressed", "true");
+
+                    // Add a call to applyContrast() if the color is 'light' or 'dark'
+                    if (color === 'light' || color === 'dark') {
+                        applyContrast(color);
+                    }
                 } else {
                     colorOption.setAttribute("aria-pressed", "false");
                 }
             });
+        }
+
+        //Store color contrast
+        logHtmlClassAndCookies();
+    }
+
+    function applyContrast(color) {
+        // Get the <html> element
+        const htmlElement = document.getElementsByTagName('html')[0];
+      
+        // Add an ID to the <html> element if it doesn't have one
+        if (!htmlElement.id) {
+          htmlElement.id = 'acs-' + color + '-contrast';
+        }
+      
+        // Add a CSS class to the <html> element
+        MyUtils.addClass(htmlElement, 'acs-' + color + '-contrast');
+      
+        // Check if the browser is Firefox and the contrast mode is not 'dark' or 'light'
+        if (
+          navigator.userAgent.toLowerCase().includes('firefox') &&
+          !['dark', 'light'].includes(color)
+        ) {
+          // Find or create a wrapper element for Firefox-specific contrast adjustments
+          let wrapperElement = MyUtils.select('.acs-ff-wrapper');
+          if (!wrapperElement) {
+            wrapperElement = MyUtils.createElement('div', {
+              class: 'acs-ff-wrapper'
+            });
+            MyUtils.appendChild(document.body, wrapperElement);
+          }
+      
+          // Move certain elements to the wrapper element
+          for (let element of MyUtils.selectAll('.acs-contrast')) {
+            if (
+              !element.closest('[data-acs], .acs-ff-wrapper')
+            ) {
+              MyUtils.appendChild(wrapperElement, element);
+            }
+          }
+      
+          // Add a CSS class to the wrapper element
+          MyUtils.addClass(wrapperElement, 'acs-' + color + '-contrast');
+        }
+      
+        // Check if the contrast mode is not 'desaturate', 'monochrome', 'saturation', or 'contrast'
+        if (
+          !['desaturate', 'monochrome', 'saturation', 'contrast'].includes(color)
+        ) {
+          // Loop through all elements in the document
+          for (let element of MyUtils.selectAll('*')) {
+            // Skip elements that have already been processed, have a [data-acs] attribute, or are certain types of elements
+            if (
+              element.acsContrastFixed ||
+              element.matches('[data-acs]') ||
+              ['head', 'body', 'html', 'style', 'script', 'br', 'img'].includes(
+                element.tagName
+              )
+            ) {
+              continue;
+            }
+      
+            // Set a flag to indicate that the element has been processed
+            element.acsContrastFixed = true;
+      
+            // Get the original inline style of the element
+            const originalStyle = element.getAttribute('style') || '';
+      
+            // Store the original inline style if it exists
+            if (originalStyle) {
+              element.setAttribute('data-acs-original-style', originalStyle);
+            }
+      
+            // Get the current background image, background color, and text color of the element
+            const backgroundImage = MyUtils.getStyle(element, 'background-image');
+            const backgroundColor = MyUtils.getStyle(element, 'background-color');
+            const textColor = MyUtils.getStyle(element, 'color');
+      
+            // Set the contrast colors based on the contrast mode
+            const backgroundContrastColor = color === 'dark' ? '#181818' : '#add';
+            const textContrastColor = color === 'dark' ? '#ffffff' : '#000000';
+      
+            // Adjust the background image if it is not 'none'
+            if (backgroundImage !== 'none') {
+              if (MyUtils.inString(backgroundImage, 'linear-gradient')) {
+                // Remove the background image if it contains a linear gradient
+                MyUtils.applyStyles(element, {
+                  'background-image': 'none'
+                });
+              } else {
+                // Add a CSS class to indicate the presence of a background image
+                MyUtils.addClass(element, 'acs-bg-image');
+              }
+            }
+      
+            // Set the aria-hidden attribute if the element is hidden
+            if (!ElementUtils.isElementVisible(element)) {
+              element.setAttribute('aria-hidden', 'true');
+            }
+      
+            // Add a CSS class to indicate that the element is visible to screen readers
+            if (ElementUtils.isElementVisibleToScreenReader(element)) {
+              MyUtils.addClass(element, 'acs-outline-contrast');
+            }
+      
+            // Check if the element has child nodes and a non-transparent background color
+            if (
+              element.childNodes.length > 0 &&
+              backgroundColor !== 'rgba(0, 0, 0, 0)'
+            ) {
+              // Add a CSS class to indicate the presence of contrast adjustments
+              MyUtils.addClass(element, 'acs-contrast');
+      
+              // Check if the background color or text color differs from the computed styles
+              if (
+                backgroundColor !== MyUtils.getStyle(element, 'background-color') ||
+                textColor !== MyUtils.getStyle(element, 'color')
+              ) {
+                // Apply the contrast colors to the element's style attribute
+                element.setAttribute(
+                  'style',
+                  originalStyle +
+                    ';background-color:' +
+                    backgroundContrastColor +
+                    '!important;color:' +
+                    textContrastColor +
+                    '!important;'
+                );
+              }
+            } else {
+              // Check if the element is an <i> or <em> tag without child nodes and with a minimum size
+              if (
+                (element.tagName === 'I' || element.tagName === 'EM') &&
+                element.childNodes.length < 1 &&
+                element.offsetWidth >= 16 &&
+                element.offsetHeight >= 16
+              ) {
+                // Add a CSS class to indicate the presence of contrast adjustments
+                MyUtils.addClass(element, 'acs-contrast');
+      
+                // Check if the background color or text color differs from the computed styles
+                if (
+                  backgroundColor !== MyUtils.getStyle(element, 'background-color') ||
+                  textColor !== MyUtils.getStyle(element, 'color')
+                ) {
+                  // Apply the contrast colors to the element's style attribute
+                  element.setAttribute(
+                    'style',
+                    originalStyle +
+                      ';background-color:' +
+                      backgroundContrastColor +
+                      '!important;color:' +
+                      textContrastColor +
+                      '!important;'
+                  );
+                }
+                continue;
+              }
+      
+              // Loop through the child nodes of the element
+              for (let childNode of element.childNodes) {
+                // Check if the child node is a text node and contains non-whitespace characters
+                if (
+                  childNode.nodeType === Node.TEXT_NODE &&
+                  MyUtils.trim(childNode.nodeValue).length > 0
+                ) {
+                  // Add a CSS class to indicate the presence of contrast adjustments
+                  MyUtils.addClass(element, 'acs-contrast');
+      
+                  // Check if the background color or text color differs from the computed styles
+                  if (
+                    backgroundColor !== MyUtils.getStyle(element, 'background-color') ||
+                    textColor !== MyUtils.getStyle(element, 'color')
+                  ) {
+                    // Apply the contrast colors to the element's style attribute
+                    element.setAttribute(
+                      'style',
+                      originalStyle +
+                        ';background-color:' +
+                        backgroundContrastColor +
+                        ';color:' +
+                        textContrastColor +
+                        '!important;'
+                    );
+                  }
+                  break;
+                }
+              }
+            }
+      
+            // Check if the original style contains a 'color' property
+            if (originalStyle && MyUtils.inString(originalStyle, 'color')) {
+              let updatedStyle = '';
+              for (let style of originalStyle.split(';')) {
+                if (
+                  style &&
+                  style.toLowerCase().substring(0, 5) !== 'color'
+                ) {
+                  updatedStyle += ';' + style;
+                }
+              }
+              // Remove the 'color' property from the style attribute
+              element.setAttribute('style', updatedStyle);
+              element.setAttribute('acs-original-style', originalStyle);
+            }
+          }
+        }
+      }
+
+    /**
+     * Toggles the given class for the given element. 
+     * If the class is already present, it removes it; otherwise, it adds the class and removes it from all sibling elements.
+     *
+     * @param {HTMLElement} element - The element to toggle the class on.
+     * @param {string} className - The class to toggle.
+     */
+    function toggleActiveClass(element, className) {
+        // If the class is already present, remove it
+        if (element.classList.contains(className)) {
+            element.classList.remove(className);
+        } else {
+            // Otherwise, add the class and remove it from all sibling elements
+            let siblings = Array.from(element.parentNode.children);
+            siblings.forEach(sibling => sibling.classList.remove(className));
+            element.classList.add(className);
         }
     }
 
@@ -228,7 +577,7 @@ function checkActiveButtons() {
     // Reset widget
     function resetAllCookies(refreshPage, classModification, dismissValue) {
         if (classModification !== undefined) {
-            acsButton.classList += classModification;
+            acsButton.classList.add(classModification);
         }
     
         html.setAttribute("class", "");
@@ -248,7 +597,7 @@ function checkActiveButtons() {
         if (e.target.closest("#resetAcs")) {
             resetAllCookies(true);
         } else if (e.target.closest("#closeAccs")) {
-            resetAllCookies(false, " d-none", "d-none");
+            resetAllCookies(true, " d-none", "d-none");
         }
     }
 
@@ -256,8 +605,8 @@ function checkActiveButtons() {
     function init() {
         if (acsWidgetBtn) {
             let alignment = acsWidgetBtn.classList.contains("widget-left") ? " modal-left" : " modal-right";
-            firstModal.classList += alignment;
-            secondModal.classList += alignment;
+            firstModal.classList.add(alignment);
+            secondModal.classList.add(alignment);
             resetAcs.addEventListener("click", function () {
                 html.setAttribute("class", "");
                 resetAllCookies();
