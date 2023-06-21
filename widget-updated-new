@@ -341,6 +341,9 @@ abc.accessibilityWidget = (function (window, document, undefined) {
                     }
                 } else {
                     colorOption.setAttribute("aria-pressed", "false");
+                    if (color === 'light' || color === 'dark') {
+                        removeContrast(color);
+                    }
                 }
             });
         }
@@ -551,6 +554,60 @@ abc.accessibilityWidget = (function (window, document, undefined) {
           }
         }
       }
+
+function removeContrast(color) {
+    // Get the <html> element
+    const htmlElement = document.getElementsByTagName('html')[0];
+
+    // Remove the ID from the <html> element if it matches 'acs-' + color + '-contrast'
+    if (htmlElement.id === 'acs-' + color + '-contrast') {
+        htmlElement.id = '';
+    }
+
+    // Remove the CSS class from the <html> element
+    MyUtils.removeClass(htmlElement, 'acs-' + color + '-contrast');
+
+    // Remove the 'acs-' + color + '-contrast' class from the wrapper element
+    let wrapperElement = MyUtils.select('.acs-ff-wrapper');
+    if (wrapperElement) {
+        MyUtils.removeClass(wrapperElement, 'acs-' + color + '-contrast');
+    }
+
+    // Loop through all elements in the document
+    for (let element of MyUtils.selectAll('*')) {
+        // If the element has the 'acs-contrast' class, remove it
+        if (MyUtils.hasClass(element, 'acs-contrast')) {
+            MyUtils.removeClass(element, 'acs-contrast');
+        }
+
+        // If the element has the 'acs-bg-image' class, remove it
+        if (MyUtils.hasClass(element, 'acs-bg-image')) {
+            MyUtils.removeClass(element, 'acs-bg-image');
+        }
+
+        // If the element has the 'acs-outline-contrast' class, remove it
+        if (MyUtils.hasClass(element, 'acs-outline-contrast')) {
+            MyUtils.removeClass(element, 'acs-outline-contrast');
+        }
+
+        // If the element has the 'data-acs-original-style' attribute, restore its original style
+        if (element.hasAttribute('data-acs-original-style')) {
+            element.setAttribute('style', element.getAttribute('data-acs-original-style'));
+            element.removeAttribute('data-acs-original-style');
+        }
+
+        // Remove the 'acsContrastFixed' property if it exists
+        if (element.acsContrastFixed) {
+            delete element.acsContrastFixed;
+        }
+
+        // Remove the 'aria-hidden' attribute if it exists
+        if (element.hasAttribute('aria-hidden')) {
+            element.removeAttribute('aria-hidden');
+        }
+    }
+}
+
 
     /**
      * Toggles the given class for the given element. 
