@@ -396,17 +396,19 @@ abc.accessibilityWidget = (function (window, document, undefined) {
         ) {
           // Loop through all elements in the document
           for (let element of MyUtils.selectAll('*')) {
+            // Array of IDs to exclude
+            let excludedIds = ['acsModal', 'help-widget', 'schedule-tour'];
+
             // Skip elements that have already been processed, have a [data-acs] attribute, or are certain types of elements
             if (
-                element.acsContrastFixed ||
-                element.matches('[data-acs]') ||
-                ['head', 'body', 'html', 'style', 'script', 'br', 'img'].includes(element.tagName.toLowerCase()) ||
-                (document.querySelector("#acsModal") && document.querySelector("#acsModal").contains(element)) ||
-                element.id === "acsModal"
+                element.acsContrastFixed ||  
+                element.matches('[data-acs]') ||  
+                ['head', 'body', 'html', 'style', 'script', 'br', 'img'].includes(element.tagName.toLowerCase()) ||  
+                excludedIds.some(id => document.querySelector("#" + id)?.contains(element)) ||  // Check if the element is a child of any excluded IDs
+                excludedIds.includes(element.id)  // Check if the element's ID is in the list of excluded IDs
             ) {
                 continue;
             }
-
       
             // Set a flag to indicate that the element has been processed
             element.acsContrastFixed = true;
