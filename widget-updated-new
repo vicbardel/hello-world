@@ -399,6 +399,24 @@ abc.accessibilityWidget = (function (window, document, undefined) {
             // Array of IDs to exclude
             let excludedIds = ['acsModal', 'help-widget', 'schedule-tour'];
 
+            // Set the special styles for <a> tags based on the contrast mode
+            const linkTextColor = color === "dark" ? "#84f191" : "#00149e";
+            const linkBackgroundColor = color === "dark" ? "#101116" : "#fff";
+            const linkBorderColor = color === "dark" ? "#84f191" : "#00149e";
+            const linkFillColor = color === "dark" ? "#84f191" : "#00149e";
+
+            // Check if the element is an <a> tag, not a child of any excluded IDs, its ID is not in the list of excluded IDs and apply special styles
+            if (
+                element.tagName.toLowerCase() === "a" && 
+                !excludedIds.some(id => document.querySelector("#" + id)?.contains(element)) && 
+                !excludedIds.includes(element.id)
+            ) {
+                element.style.setProperty("color", linkTextColor, "important");
+                element.style.setProperty("background-color", linkBackgroundColor, "important");
+                element.style.setProperty("border-color", linkBorderColor, "important");
+                element.style.setProperty("fill", linkFillColor, "important");
+            }
+
             // Skip elements that have already been processed, have a [data-acs] attribute, or are certain types of elements
             if (
                 element.acsContrastFixed ||  
