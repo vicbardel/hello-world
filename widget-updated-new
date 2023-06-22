@@ -323,34 +323,33 @@ abc.accessibilityWidget = (function (window, document, undefined) {
     }
     
     function applyColorAdjustments() {
-        if (colorGroup) {
-            acsCheckMark.classList.add(INVISIBLE);
-            html.setAttribute("class", "");
-            let previousColor = acsButton.getAttribute("data-acs-applied");
-            acsButton.setAttribute("data-acs-applied", "");
-            let newColor = "";
-    
-            colorAdjustment.forEach((colorOption) => {
-                let color = colorOption.getAttribute("data-ysi-acs-color");
-                if (colorOption.classList.contains(ACS_ACTIVE)) {
-                    html.setAttribute("class", color);
-                    acsButton.setAttribute("data-acs-applied", color);
-                    newColor = color;
-                    colorOption.setAttribute("aria-pressed", "true");
-                    if (color === 'dark' || color === 'light') {
-                        applyContrast(color);
-                    }
-                } else {
-                    colorOption.setAttribute("aria-pressed", "false");
-                }
-            });
-    
-            if ((previousColor === 'dark' || previousColor === 'light') && previousColor !== newColor) {
-                removeContrast(previousColor);
-            }
+    if (colorGroup) {
+        acsCheckMark.classList.add(INVISIBLE);
+        html.setAttribute("class", "");
+        let previousColor = acsButton.getAttribute("data-acs-applied");
+        acsButton.setAttribute("data-acs-applied", "");
+
+        if (previousColor === 'dark' || previousColor === 'light') {
+            removeContrast(previousColor);
         }
-        logHtmlClassAndCookies
+
+        colorAdjustment.forEach((colorOption) => {
+            let color = colorOption.getAttribute("data-ysi-acs-color");
+            if (colorOption.classList.contains(ACS_ACTIVE)) {
+                html.setAttribute("class", color);
+                acsButton.setAttribute("data-acs-applied", color);
+                colorOption.setAttribute("aria-pressed", "true");
+                if (color === 'dark' || color === 'light') {
+                    applyContrast(color);
+                }
+            } else {
+                colorOption.setAttribute("aria-pressed", "false");
+            }
+        });
     }
+    logHtmlClassCookies();
+}
+
 
     function applyContrast(color) {
         // Get the <html> element
@@ -393,20 +392,21 @@ abc.accessibilityWidget = (function (window, document, undefined) {
       
         // Check if the contrast mode is not 'desaturate', 'monochrome', 'saturation', or 'contrast'
         if (
-          !['desaturate', 'monochrome', 'saturation', 'contrast'].includes(color)
+          !['monochrome', 'high-saturation', 'low-saturation', 'invert-colors'].includes(color)
         ) {
           // Loop through all elements in the document
           for (let element of MyUtils.selectAll('*')) {
             // Skip elements that have already been processed, have a [data-acs] attribute, or are certain types of elements
             if (
-              element.acsContrastFixed ||
-              element.matches('[data-acs]') ||
-              ['head', 'body', 'html', 'style', 'script', 'br', 'img'].includes(
-                element.tagName
-              )
+                element.acsContrastFixed ||
+                element.matches('[data-acs]') ||
+                ['head', 'body', 'html', 'style', 'script', 'br', 'img'].includes(element.tagName.toLowerCase()) ||
+                (document.querySelector("#acsModal") && document.querySelector("#acsModal").contains(element)) ||
+                element.id === "acsModal"
             ) {
-              continue;
+                continue;
             }
+
       
             // Set a flag to indicate that the element has been processed
             element.acsContrastFixed = true;
