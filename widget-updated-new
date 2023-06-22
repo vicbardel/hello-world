@@ -576,6 +576,8 @@ abc.accessibilityWidget = (function (window, document, undefined) {
             }
           }
         }
+        // Store the contrast mode in localStorage
+        localStorage.setItem('contrastMode', color);
       }
 
       function removeContrast(color) {
@@ -643,6 +645,8 @@ abc.accessibilityWidget = (function (window, document, undefined) {
                 element.removeAttribute('aria-hidden');
             }
         }
+        // Remove the contrast mode from localStorage
+        localStorage.removeItem('contrastMode');
     }
     
 
