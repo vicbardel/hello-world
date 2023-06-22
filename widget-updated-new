@@ -326,30 +326,30 @@ abc.accessibilityWidget = (function (window, document, undefined) {
         if (colorGroup) {
             acsCheckMark.classList.add(INVISIBLE);
             html.setAttribute("class", "");
+            let previousColor = acsButton.getAttribute("data-acs-applied");
             acsButton.setAttribute("data-acs-applied", "");
-
+            let newColor = "";
+    
             colorAdjustment.forEach((colorOption) => {
+                let color = colorOption.getAttribute("data-ysi-acs-color");
                 if (colorOption.classList.contains(ACS_ACTIVE)) {
-                    let color = colorOption.getAttribute("data-ysi-acs-color");
-                    html.setAttribute("class", 'acs-' + color + '-contrast');
-                    acsButton.setAttribute("data-acs-applied", 'acs-' + color + '-contrast');
+                    html.setAttribute("class", color);
+                    acsButton.setAttribute("data-acs-applied", color);
+                    newColor = color;
                     colorOption.setAttribute("aria-pressed", "true");
-
-                    // Add a call to applyContrast() if the color is 'light' or 'dark'
-                    if (color === 'light' || color === 'dark') {
+                    if (color === 'dark' || color === 'light') {
                         applyContrast(color);
                     }
                 } else {
                     colorOption.setAttribute("aria-pressed", "false");
-                    if (color === 'light' || color === 'dark') {
-                        removeContrast(color);
-                    }
                 }
             });
+    
+            if ((previousColor === 'dark' || previousColor === 'light') && previousColor !== newColor) {
+                removeContrast(previousColor);
+            }
         }
-
-        //Store color contrast
-        logHtmlClassAndCookies();
+        logHtmlClassAndCookies
     }
 
     function applyContrast(color) {
