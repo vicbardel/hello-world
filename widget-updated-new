@@ -323,33 +323,35 @@ abc.accessibilityWidget = (function (window, document, undefined) {
     }
     
     function applyColorAdjustments() {
-    if (colorGroup) {
-        acsCheckMark.classList.add(INVISIBLE);
-        html.setAttribute("class", "");
-        let previousColor = acsButton.getAttribute("data-acs-applied");
-        acsButton.setAttribute("data-acs-applied", "");
-
-        if (previousColor === 'dark' || previousColor === 'light') {
-            removeContrast(previousColor);
-        }
-
-        colorAdjustment.forEach((colorOption) => {
-            let color = colorOption.getAttribute("data-ysi-acs-color");
-            if (colorOption.classList.contains(ACS_ACTIVE)) {
-                html.setAttribute("class", color);
-                acsButton.setAttribute("data-acs-applied", color);
-                colorOption.setAttribute("aria-pressed", "true");
-                if (color === 'dark' || color === 'light') {
-                    applyContrast(color);
-                }
-            } else {
-                colorOption.setAttribute("aria-pressed", "false");
+        if (colorGroup) {
+            acsCheckMark.classList.add(INVISIBLE);
+            html.setAttribute("class", "");
+            let previousColor = acsButton.getAttribute("data-acs-applied");
+            acsButton.setAttribute("data-acs-applied", "");
+    
+            if (previousColor === 'dark' || previousColor === 'light') {
+                removeContrast(previousColor);
             }
-        });
+    
+            colorAdjustment.forEach((colorOption) => {
+                let color = colorOption.getAttribute("data-ysi-acs-color");
+                if (colorOption.classList.contains(ACS_ACTIVE)) {
+                    html.setAttribute("class", color);
+                    acsButton.setAttribute("data-acs-applied", color);
+                    colorOption.setAttribute("aria-pressed", "true");
+                    if (color === 'dark' || color === 'light') {
+                        applyContrast(color);
+                    }
+                } else {
+                    colorOption.setAttribute("aria-pressed", "false");
+                }
+            });
+        }
+        //Store color contrast
+        logHtmlClassAndCookies();
     }
-    logHtmlClassCookies();
-}
-
+    
+    
 
     function applyContrast(color) {
         // Get the <html> element
@@ -397,25 +399,13 @@ abc.accessibilityWidget = (function (window, document, undefined) {
           // Loop through all elements in the document
           for (let element of MyUtils.selectAll('*')) {
             // Array of IDs to exclude
-            let excludedIds = ['acsModal', 'help-widget', 'schedule-tour'];
+            let excludedIds = ['acsModal', 'help-widget', 'closeModalToggle'];
 
             // Set the special styles for <a> tags based on the contrast mode
             const linkTextColor = color === "dark" ? "#84f191" : "#00149e";
             const linkBackgroundColor = color === "dark" ? "#101116" : "#fff";
-            const linkBorderColor = color === "dark" ? "#84f191" : "#00149e";
+            const linkBorderColor = color === "dark" ? "solid #84f191" : "solid #00149e";
             const linkFillColor = color === "dark" ? "#84f191" : "#00149e";
-
-            // Check if the element is an <a> tag, not a child of any excluded IDs, its ID is not in the list of excluded IDs and apply special styles
-            if (
-                element.tagName.toLowerCase() === "a" && 
-                !excludedIds.some(id => document.querySelector("#" + id)?.contains(element)) && 
-                !excludedIds.includes(element.id)
-            ) {
-                element.style.setProperty("color", linkTextColor, "important");
-                element.style.setProperty("background-color", linkBackgroundColor, "important");
-                element.style.setProperty("border-color", linkBorderColor, "important");
-                element.style.setProperty("fill", linkFillColor, "important");
-            }
 
             // Skip elements that have already been processed, have a [data-acs] attribute, or are certain types of elements
             if (
@@ -427,6 +417,7 @@ abc.accessibilityWidget = (function (window, document, undefined) {
             ) {
                 continue;
             }
+            
       
             // Set a flag to indicate that the element has been processed
             element.acsContrastFixed = true;
@@ -445,7 +436,7 @@ abc.accessibilityWidget = (function (window, document, undefined) {
             const textColor = MyUtils.getStyle(element, 'color');
       
             // Set the contrast colors based on the contrast mode
-            const backgroundContrastColor = color === 'dark' ? '#181818' : '#add';
+            const backgroundContrastColor = color === 'dark' ? '#181818' : '#fff';
             const textContrastColor = color === 'dark' ? '#ffffff' : '#000000';
       
             // Adjust the background image if it is not 'none'
@@ -571,63 +562,89 @@ abc.accessibilityWidget = (function (window, document, undefined) {
               element.setAttribute('style', updatedStyle);
               element.setAttribute('acs-original-style', originalStyle);
             }
+
+            // Check if the element is an <a> tag, not a child of any excluded IDs, its ID is not in the list of excluded IDs and apply special styles
+            if (
+                element.tagName.toLowerCase() === "a" && 
+                !excludedIds.some(id => document.querySelector("#" + id)?.contains(element)) && 
+                !excludedIds.includes(element.id)
+            ) {
+                element.style.setProperty("color", linkTextColor, "important");
+                element.style.setProperty("background-color", linkBackgroundColor, "important");
+                element.style.setProperty("border", linkBorderColor, "important");
+                element.style.setProperty("fill", linkFillColor, "important");
+            }
           }
         }
       }
 
-function removeContrast(color) {
-    // Get the <html> element
-    const htmlElement = document.getElementsByTagName('html')[0];
+      function removeContrast(color) {
+        // Get the <html> element
+        const htmlElement = document.getElementsByTagName('html')[0];
+    
+        // Remove the ID from the <html> element if it matches 'acs-' + color + '-contrast'
+        if (htmlElement.id === 'acs-' + color + '-contrast') {
+            htmlElement.id = '';
+        }
+    
+        // Remove the CSS class from the <html> element
+        MyUtils.removeClass(htmlElement, 'acs-' + color + '-contrast');
+    
+        // Remove the 'acs-' + color + '-contrast' class from the wrapper element
+        let wrapperElement = MyUtils.select('.acs-ff-wrapper');
+        if (wrapperElement) {
+            MyUtils.removeClass(wrapperElement, 'acs-' + color + '-contrast');
+        }
+    
+        // Loop through all elements in the document
+        for (let element of MyUtils.selectAll('*')) {
+            // Array of IDs to exclude
+            let excludedIds = ['acsModal', 'help-widget', 'schedule-tour'];
 
-    // Remove the ID from the <html> element if it matches 'acs-' + color + '-contrast'
-    if (htmlElement.id === 'acs-' + color + '-contrast') {
-        htmlElement.id = '';
+            // Check if the element is an <a> tag, not a child of any excluded IDs, and its ID is not in the list of excluded IDs and remove special styles
+            if (
+                element.tagName.toLowerCase() === 'a' && 
+                !excludedIds.some(id => document.querySelector("#" + id)?.contains(element)) && 
+                !excludedIds.includes(element.id)
+            ) {
+                element.style.removeProperty("color");
+                element.style.removeProperty("background-color");
+                element.style.removeProperty("border-color");
+                element.style.removeProperty("fill");
+            }
+            // If the element has the 'acs-contrast' class, remove it
+            if (MyUtils.hasClass(element, 'acs-contrast')) {
+                MyUtils.removeClass(element, 'acs-contrast');
+            }
+    
+            // If the element has the 'acs-bg-image' class, remove it
+            if (MyUtils.hasClass(element, 'acs-bg-image')) {
+                MyUtils.removeClass(element, 'acs-bg-image');
+            }
+    
+            // If the element has the 'acs-outline-contrast' class, remove it
+            if (MyUtils.hasClass(element, 'acs-outline-contrast')) {
+                MyUtils.removeClass(element, 'acs-outline-contrast');
+            }
+    
+            // If the element has the 'data-acs-original-style' attribute, restore its original style
+            if (element.hasAttribute('data-acs-original-style')) {
+                element.setAttribute('style', element.getAttribute('data-acs-original-style'));
+                element.removeAttribute('data-acs-original-style');
+            }
+    
+            // Remove the 'acsContrastFixed' property if it exists
+            if (element.acsContrastFixed) {
+                delete element.acsContrastFixed;
+            }
+    
+            // Remove the 'aria-hidden' attribute if it exists
+            if (element.hasAttribute('aria-hidden')) {
+                element.removeAttribute('aria-hidden');
+            }
+        }
     }
-
-    // Remove the CSS class from the <html> element
-    MyUtils.removeClass(htmlElement, 'acs-' + color + '-contrast');
-
-    // Remove the 'acs-' + color + '-contrast' class from the wrapper element
-    let wrapperElement = MyUtils.select('.acs-ff-wrapper');
-    if (wrapperElement) {
-        MyUtils.removeClass(wrapperElement, 'acs-' + color + '-contrast');
-    }
-
-    // Loop through all elements in the document
-    for (let element of MyUtils.selectAll('*')) {
-        // If the element has the 'acs-contrast' class, remove it
-        if (MyUtils.hasClass(element, 'acs-contrast')) {
-            MyUtils.removeClass(element, 'acs-contrast');
-        }
-
-        // If the element has the 'acs-bg-image' class, remove it
-        if (MyUtils.hasClass(element, 'acs-bg-image')) {
-            MyUtils.removeClass(element, 'acs-bg-image');
-        }
-
-        // If the element has the 'acs-outline-contrast' class, remove it
-        if (MyUtils.hasClass(element, 'acs-outline-contrast')) {
-            MyUtils.removeClass(element, 'acs-outline-contrast');
-        }
-
-        // If the element has the 'data-acs-original-style' attribute, restore its original style
-        if (element.hasAttribute('data-acs-original-style')) {
-            element.setAttribute('style', element.getAttribute('data-acs-original-style'));
-            element.removeAttribute('data-acs-original-style');
-        }
-
-        // Remove the 'acsContrastFixed' property if it exists
-        if (element.acsContrastFixed) {
-            delete element.acsContrastFixed;
-        }
-
-        // Remove the 'aria-hidden' attribute if it exists
-        if (element.hasAttribute('aria-hidden')) {
-            element.removeAttribute('aria-hidden');
-        }
-    }
-}
-
+    
 
     /**
      * Toggles the given class for the given element. 
