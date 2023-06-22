@@ -326,7 +326,7 @@ abc.accessibilityWidget = (function (window, document, undefined) {
         if (colorGroup) {
             acsCheckMark.classList.add(INVISIBLE);
             html.setAttribute("class", "");
-            let previousColor = acsButton.getAttribute("data-acs-applied");
+            let previousColor = localStorage.getItem('previousColor');
             acsButton.setAttribute("data-acs-applied", "");
     
             if (previousColor === 'dark' || previousColor === 'light') {
@@ -576,6 +576,8 @@ abc.accessibilityWidget = (function (window, document, undefined) {
             }
           }
         }
+        // Store the color as previousColor in localStorage
+        localStorage.setItem('previousColor', color);
         // Store the contrast mode in localStorage
         localStorage.setItem('contrastMode', color);
       }
@@ -645,6 +647,8 @@ abc.accessibilityWidget = (function (window, document, undefined) {
                 element.removeAttribute('aria-hidden');
             }
         }
+        // Store the color as previousColor in localStorage
+        localStorage.removeItem('previousColor');
         // Remove the contrast mode from localStorage
         localStorage.removeItem('contrastMode');
     }
@@ -716,6 +720,7 @@ abc.accessibilityWidget = (function (window, document, undefined) {
                 console.log("Reset Cookies");
             });
         }
+
         // Check for saved contrast mode on page load
         window.addEventListener("load", function() {
             let contrastMode = localStorage.getItem('contrastMode');
@@ -736,6 +741,8 @@ abc.accessibilityWidget = (function (window, document, undefined) {
     return {
         init
     };
+
+    
 })(window, document);
 
 abc.registerCallback(function () {
