@@ -712,6 +712,15 @@ abc.accessibilityWidget = (function (window, document, undefined) {
                 console.log("Reset Cookies");
             });
         }
+        // Check for saved contrast mode on page load
+        window.addEventListener("load", function() {
+            let contrastMode = localStorage.getItem('contrastMode');
+            
+            // If a contrast mode is stored in localStorage, apply it
+            if (contrastMode) {
+                applyContrast(contrastMode);
+            }
+        });
     }
 
     // Set up event listeners
