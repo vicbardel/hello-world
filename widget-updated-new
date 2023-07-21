@@ -417,8 +417,41 @@ abc.accessibilityWidget = (function (window, document, undefined) {
             ) {
                 continue;
             }
+
+            /*
+             *Rewritten excluded if statement to for loop   
+            */
+
+            // Check if the element or any of its ancestors are in the excludedIds array
+            let isExcluded = false;
+            for (let i = 0; i < excludedIds.length; i++) {
+              let excludedElement = document.querySelector("#" + excludedIds[i]);
+              if (excludedElement && excludedElement.contains(element)) {
+                isExcluded = true;
+                break;
+              }
+            }
             
-      
+            // Check if the element or any of its ancestors have any of the excluded classes
+            if (!isExcluded) {
+              let parentElement = element;
+              while (parentElement) {
+                if (excludedClasses.some(className => parentElement.classList.contains(className))) {
+                  isExcluded = true;
+                  break;
+                }
+                parentElement = parentElement.parentElement;
+              }
+            }
+            
+            // The 'isExcluded' variable will be true if the element or any of its ancestors are in the excludedIds array
+            // or if the element or any of its ancestors have any of the excluded classes
+            if (element.acsContrastFixed || element.matches('[data-acs]') ||
+                ['head', 'body', 'html', 'style', 'script', 'br', 'img'].includes(element.tagName.toLowerCase()) ||
+                isExcluded) {
+              continue;
+            }
+
             // Set a flag to indicate that the element has been processed
             element.acsContrastFixed = true;
       
