@@ -597,6 +597,15 @@ abc.accessibilityWidget = (function (window, document, undefined) {
             }
 
             // Check if the element is an <a> tag, not a child of any excluded IDs, its ID is not in the list of excluded IDs and apply special styles
+
+/* Traditional Code
+element.tagName.toLowerCase() === "a" &&
+    !excludedIds.some(function(id) {
+        let excludedElement = document.querySelector("#" + id);
+        return excludedElement ? excludedElement.contains(element) : false;
+    }) &&
+    !excludedIds.includes(element.id)
+*/
             if (
                 element.tagName.toLowerCase() === "a" && 
                 !excludedIds.some(id => document.querySelector("#" + id)?.contains(element)) && 
