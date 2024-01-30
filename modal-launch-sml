@@ -32,29 +32,32 @@ function trapFocus(event, interactiveElement) {
 }
 
 function toggleFloorModal(destination) {
-    let modal = $('#floorModal');
-    let closeButton = $('#closeFloorModal');
+    let modal = document.getElementById('floorModal');
+    let closeButton = document.getElementById('closeFloorModal');
 
     if (destination === "Floor_00") {
         lastFocusedElement = document.activeElement;
 
-        modal.modal('show');
+        modal.style.display = 'block';
+        modal.classList.add('show');
         closeButton.focus();
 
-        modal.on('keydown', function (event) {
+        modal.addEventListener('keydown', function (event) {
             trapFocus(event, closeButton);
         });
 
-        closeButton.on('click', function () {
-            modal.modal('hide');
+        closeButton.addEventListener('click', function () {
+            modal.style.display = 'none';
+            modal.classList.remove('show');
             if (lastFocusedElement) {
                 lastFocusedElement.focus();
             }
         });
 
-        modal.on('click', function (event) {
-            if ($(event.target).is(modal)) {
-                modal.modal('hide');
+        window.addEventListener('click', function (event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('show');
                 if (lastFocusedElement) {
                     lastFocusedElement.focus();
                 }
@@ -62,5 +65,6 @@ function toggleFloorModal(destination) {
         });
     }
 }
+
 
 </script>
