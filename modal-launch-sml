@@ -1,0 +1,66 @@
+<button data-destination="Floor_00" onclick="toggleFloorModal(this.getAttribute('data-destination'))">Open Floor Modal</button>
+
+
+<!-- Bootstrap Modal -->
+<div class="modal fade" id="floorModal" tabindex="-1" role="dialog" aria-labelledby="floorModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document" style="max-width: 500px;">
+    <div class="modal-content">
+      <div class="modal-body">
+        <img src="your-image-url.jpg" alt="Floor Image" style="width: 100%; height: auto;">
+        <div class="unit-info">
+          <p>Apt 632</p>
+          <p>3 bed / 2 bath / 1900SQ</p>
+          <p>$5,650.00</p>
+        </div>
+        <div class="text-center">
+          <button class="btn btn-primary">View Unit</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="closeFloorModal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function trapFocus(event, interactiveElement) {
+    if (event.key === 'Tab' || event.keyCode === 9) {
+        event.preventDefault();
+        interactiveElement.focus();
+    }
+}
+
+function toggleFloorModal(destination) {
+    let modal = $('#floorModal');
+    let closeButton = $('#closeFloorModal');
+
+    if (destination === "Floor_00") {
+        lastFocusedElement = document.activeElement;
+
+        modal.modal('show');
+        closeButton.focus();
+
+        modal.on('keydown', function (event) {
+            trapFocus(event, closeButton);
+        });
+
+        closeButton.on('click', function () {
+            modal.modal('hide');
+            if (lastFocusedElement) {
+                lastFocusedElement.focus();
+            }
+        });
+
+        modal.on('click', function (event) {
+            if ($(event.target).is(modal)) {
+                modal.modal('hide');
+                if (lastFocusedElement) {
+                    lastFocusedElement.focus();
+                }
+            }
+        });
+    }
+}
+
+</script>
