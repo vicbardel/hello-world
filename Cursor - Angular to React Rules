@@ -1,0 +1,213 @@
+# Website Editor Migration Doctrine  
+**Angular 7 ➜ React 18 (Vite + Tailwind)** · **Backend: ASP.NET MVC (unchanged)**
+
+> **Purpose:** Convert the existing **Angular 7 website editor** to **React 18 + Vite + TailwindCSS** while **preserving all ASP.NET MVC contracts** (routes, DTOs, headers, auth, anti-forgery, save semantics). **Every Angular component and its related files must have a React equivalent** and behave **exactly or indistinguishably** to end-users. The **saving and persistence flows must remain the same**, requiring little to no backend edits.
+
+---
+
+## 🎯 Goal & Scope
+- Convert **all Angular components, templates, styles, services, pipes, directives** → React 18 equivalents.
+- Keep **backend code and contracts the same** (unless documenting a server bug fix).
+- **Saves/autosave/validation/conflict flows** call the **same endpoints** with the **same payloads/headers**.
+
+---
+
+## 🔒 Contracts to Preserve
+- **Routes/verbs/status** (HTTP 2xx/4xx/5xx), **DTO shapes**, **error messages**.
+- **Auth**: cookies/roles/policies unchanged.
+- **CSRF**: send `RequestVerificationToken` header/form (ASP.NET MVC).
+- **Concurrency**: ETag/version/rowversion unchanged.
+- **Telemetry**: correlation IDs and event names unchanged.
+
+---
+
+## 🔁 Angular ➜ React Mapping
+
+| Angular 7 | React 18 |
+|---|---|
+| Component (template+class) | Function component (TSX) + hooks |
+| @Input/@Output | props/callbacks |
+| Services (DI singletons) | modules + hooks/context (React Query for server state) |
+| RxJS Observables | React Query (queries/mutations) or event emitter/Zustand |
+| Pipes | pure TS utilities |
+| Directives | small components or custom hooks |
+| ngOnInit/Destroy | `useEffect` / `useLayoutEffect` |
+| Router | React Router (guards via wrappers/loaders) |
+| Template/SCSS | JSX + Tailwind utilities |
+| Template/Reactive Forms | React Hook Form (+ Zod) |
+
+> **Parity Rule:** Inputs/Outputs → props/callbacks with identical names and semantics; visual spacing and behavior must match the Angular app.
+
+---
+
+## 🧱 Project Structure
+```
+project/
+├─ src/
+│  ├─ client/                 # React + Vite + Tailwind
+│  │  ├─ app/                 # entry, providers, routes
+│  │  ├─ features/editor/     # core editor, panels, toolbar
+│  │  ├─ components/          # shared UI
+│  │  ├─ hooks/               # use-*
+│  │  ├─ lib/                 # pure utils (pipes→functions)
+│  │  └─ tests/               # FE unit/integration
+│  ├─ server/                 # ASP.NET MVC (unchanged)
+│  │  ├─ Controllers/ Services/ Domain/ Infrastructure/ ViewModels/ Tests/
+│  └─ shared/                 # OpenAPI types/contracts
+├─ config/                    # vite, tailwind, eslint, prettier
+├─ scripts/                   # build, publish, db-migrate
+└─ docs/                      # runbooks, ADRs
+```
+
+---
+
+## 🧩 API Client Adapter (parity with Angular HttpClient)
+
+**`src/client/lib/api.ts`**
+```ts
+import axios from "axios";
+
+function getAntiForgeryToken(): string | null {
+  const meta = document.querySelector('meta[name="request-verification-token"]') as HTMLMetaElement | null;
+  if (meta?.content) return meta.content;
+  const match = document.cookie.match(/(?:^|;\s*)__RequestVerificationToken=([^;]+)/);
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+export const api = axios.create({
+  withCredentials: true,
+  headers: { "X-Requested-With": "XMLHttpRequest" }
+});
+
+api.interceptors.request.use((cfg) => {
+  const token = getAntiForgeryToken();
+  if (token) cfg.headers["RequestVerificationToken"] = token;
+  // carry correlation id if MVC issues one
+  const cid = sessionStorage.getItem("x-correlation-id");
+  if (cid) cfg.headers["X-Correlation-ID"] = cid;
+  return cfg;
+});
+
+api.interceptors.response.use(
+  (r) => r,
+  (err) => {
+    // Normalize error like Angular HttpErrorResponse
+    const status = err?.response?.status ?? 0;
+    const data = err?.response?.data ?? {};
+    return Promise.reject({ status, error: data, message: err.message });
+  }
+);
+```
+
+**React Query usage (same endpoints/payloads as Angular):**
+```ts
+// src/client/features/editor/useSaveDraft.ts
+import { useMutation } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+
+type DraftPayload = { id: string; content: string; version: string };
+type DraftResponse = { success: boolean; version: string; etag?: string };
+
+export function useSaveDraft() {
+  return useMutation<DraftResponse, {status:number; error:any; message:string}, DraftPayload>({
+    mutationFn: async (payload) => {
+      const res = await api.post("/Editor/SaveDraft", payload); // same MVC route
+      return res.data as DraftResponse;
+    }
+  });
+}
+```
+
+---
+
+## 🧰 Editor Form (React Hook Form) with identical validation
+```tsx
+// src/client/features/editor/TitleField.tsx
+import { useForm } from "react-hook-form";
+import { useSaveDraft } from "./useSaveDraft";
+
+type FormData = { title: string; id: string; version: string };
+
+export default function TitleField(props: { id: string; version: string; initial: string }) {
+  const { register, handleSubmit, formState: { errors, isDirty } } = useForm<FormData>({
+    defaultValues: { title: props.initial, id: props.id, version: props.version }
+  });
+  const saveDraft = useSaveDraft();
+
+  const onSubmit = (data: FormData) =>
+    saveDraft.mutate({ id: data.id, content: data.title, version: data.version });
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="flex items-center gap-2">
+      <input
+        {...register("title", { required: "Title is required", minLength: { value: 3, message: "Min 3 chars" } })}
+        className="input input-bordered w-full"
+        aria-invalid={!!errors.title}
+      />
+      <button type="submit" disabled={!isDirty} className="btn btn-primary">Save</button>
+      {errors.title && <span role="alert" className="text-red-600">{errors.title.message}</span>}
+    </form>
+  );
+}
+```
+
+---
+
+## 🛡️ Security (equal or stricter than Angular app)
+- **XSS:** sanitize any rendered HTML (DOMPurify) on FE **and** validate/whitelist on BE; only use `dangerouslySetInnerHTML` with sanitized HTML.
+- **CSRF:** include `RequestVerificationToken` header as shown.
+- **CSP/HSTS:** keep current policies; no new inline scripts unless nonced.
+- **Uploads:** same MIME/size rules, re-encode images, strip EXIF, AV scan.
+- **Secrets:** never in repo or `.env`; use User Secrets/Key Vault.
+
+---
+
+## ⚡ Performance Targets
+- **CWV:** LCP < 2.5s p75, INP < 200ms p75, CLS < 0.1.
+- **Editor:** keystroke latency < 16ms p95; autosave debounce ≤ 150ms.
+- **Assets:** lazy-load heavy panels; route code-split; prefetch on hover.
+
+---
+
+## ✅ Testing
+**Frontend**
+- Vitest + RTL for each converted component (props/events/edge cases).
+- Playwright E2E: edit → autosave → preview → publish (parity).
+- Visual regression on editor screens.
+
+**Backend**
+- Contract tests against MVC endpoints using existing DTOs.
+- Load tests save endpoints: p95 ≤ 250ms, zero data loss.
+
+**Coverage:** ≥85% for editor core paths (merge-blocking).
+
+---
+
+## 🗺️ Migration Plan (Strangler Fig)
+1. **Inventory**: manifest of every Angular component/service/pipe/directive + the routes and APIs touched.
+2. **Adapter First**: implement `api.ts` so React speaks MVC’s dialect (auth, CSRF, correlation).
+3. **Dual-run**: mount React inside current MVC layout; flag routes for React gradually.
+4. **Order**: convert leaf features → shared primitives → editor core.
+5. **Parity Gate**: after each cutover, run parity E2E + UAT on staging; keep rollback flag.
+6. **Retire Angular**: remove only after two stable releases with metrics parity.
+
+---
+
+## ✅ Acceptance Criteria (per feature)
+- API calls **identical** (method/URL/headers/payload/status).
+- UI/UX parity (visuals, keyboard/focus, errors, timings).
+- Autosave, undo/redo, conflict resolution match behavior & copy.
+- **No backend edits** required (documented bugfixes allowed).
+- Logs/metrics/correlation IDs preserved.
+
+---
+
+## 🔏 Merge Checklist
+- [ ] React equivalents for all related Angular assets committed & tested  
+- [ ] Contract tests green; no payload/status diffs  
+- [ ] Playwright parity suite green; visual diffs approved  
+- [ ] CSP/anti-forgery enforced; sanitized HTML only  
+- [ ] Bundle/perf budgets respected; CWV stable or better  
+- [ ] Runbooks/ADRs updated (debug, rollback, flags)
+
+**Definition of Done:** Angular feature disabled/removed, React replacement live behind a flag, metrics stable for two releases, backend unchanged (except documented fixes).
