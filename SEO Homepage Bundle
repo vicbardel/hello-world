@@ -1,0 +1,67 @@
+# SEO Homepage Bundle Prompt
+
+Use this template to generate a complete, SEO-optimized homepage content bundle.
+
+---
+
+## Prompt
+
+Create a high-converting, SEO-optimized homepage content bundle for **[Business Name]**, a leading **[Business Type/Industry]** in **[City/Region]**.
+
+---
+
+## 1. Hero Section
+- Write a strong headline (6–10 words) that includes **[primary keyword]**
+- Add a compelling subheadline (1 sentence) featuring **[secondary keywords]** and **[unique value proposition]**
+- Include a clear CTA button (2–4 words), e.g., **[Book Now / Get Started / Shop Now]**
+
+---
+
+## 2. Welcome Section (Max 2 sentences)
+- Write a concise, engaging intro
+- Naturally include **[primary keyword] + [location]**
+- Mention **[core services/products]** and **[target audience]**
+- Do NOT start with "Welcome to"
+- Keep it inviting, clear, and benefit-driven
+
+---
+
+## 3. Value Proposition Bullets (3–5 bullets)
+- Highlight key benefits such as:
+  - **[Quality / Experience / Pricing / Speed / Trust]**
+- Keep each bullet under 10 words
+- Use action-oriented, customer-focused language
+
+---
+
+## 4. SEO CTA Section
+- Write a persuasive call-to-action paragraph (1–2 sentences)
+- Include **[primary keyword] + [location]**
+- End with a strong CTA button label
+
+---
+
+## 5. Optional SEO Boost
+- Add 3–5 keyword variations naturally within the content
+- Keep tone aligned with **[brand voice: luxury / playful / corporate / family-friendly]**
+
+---
+
+## Output Requirements
+- Keep everything concise and conversion-focused
+- Avoid fluff and repetition
+- Ensure natural keyword placement (no keyword stuffing)
+
+---
+
+## Optional Input Fields (for UI buttons)
+- Business Name:
+- Business Type/Industry:
+- City/Region:
+- Primary Keyword:
+- Secondary Keywords:
+- Unique Value Proposition:
+- Core Services/Products:
+- Target Audience:
+- CTA Button Text:
+- Brand Voice:
