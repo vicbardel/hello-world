@@ -1,0 +1,316 @@
+
+
+
+Turn this into a prompt that can be used as a template for any business:
+"Write an engaging and welcoming, up to 2 sentences, 'Welcome' section for lawFirmTest, a top-notch Law Firm. Mention [​insert information to include here] and don't start with "Welcome to". Include the most vital information only, since it should be short, inviting and attractive."
+
+Here’s a clean, reusable template you can use for any business:
+
+Template Prompt:
+
+"Write an engaging and welcoming, up to 2 sentences, 'Welcome' section for [Business Name], a top-notch [Business Type/Industry]. Mention [insert key information, services, audience, or value proposition here] and do not start with 'Welcome to'. Include only the most essential details, keeping it short, inviting, and compelling."
+
+If you want, I can level this up with:
+
+SEO-optimized version
+
+Tone variations (luxury, playful, corporate, family-friendly)
+
+Or auto-fill versions for your current brands like Gamma’s Yarn or Sweetopia 👍
+
+
+Show me the SEO-optimized version
+
+Here’s a stronger SEO-optimized version of your template—still clean, but now structured to improve discoverability and keyword relevance:
+
+SEO-Optimized Template Prompt:
+
+"Write an engaging, SEO-optimized 'Welcome' section (maximum 2 sentences) for [Business Name], a leading [Business Type/Industry] in [City/Region]. Naturally incorporate primary keywords such as [main service/product keywords] and [secondary keywords or specialties]. Mention [unique value proposition, target audience, or standout offering], and do not start with 'Welcome to'. Keep it concise, compelling, and written to attract both search engines and potential customers."
+
+If you want to push this further, I can also:
+
+Add local SEO schema-style phrasing
+
+Generate multiple keyword variations automatically
+
+Or create a full homepage hero + welcome + CTA bundle based on this template
+
+
+Create the bundle
+
+Here’s a complete SEO Homepage Bundle template you can reuse for any business:
+
+🔹 SEO Homepage Bundle Prompt (Hero + Welcome + CTA)
+"Create a high-converting, SEO-optimized homepage content bundle for [Business Name], a leading [Business Type/Industry] in [City/Region].
+
+1. Hero Section
+Write a strong headline (6–10 words) that includes [primary keyword]
+
+Add a compelling subheadline (1 sentence) featuring [secondary keywords] and [unique value proposition]
+
+Include a clear CTA button (2–4 words) such as [Book Now / Get Started / Shop Now]
+
+2. Welcome Section (Max 2 sentences)
+Write a concise, engaging intro
+
+Naturally include [primary keyword] + [location]
+
+Mention [core services/products] and [target audience]
+
+Do NOT start with 'Welcome to'
+
+Keep it inviting, clear, and benefit-driven
+
+3. Value Proposition Bullets (3–5 bullets)
+Highlight key benefits such as:
+
+[Quality / Experience / Pricing / Speed / Trust]
+
+Keep each bullet under 10 words
+
+Use action-oriented, customer-focused language
+
+4. SEO CTA Section
+Write a persuasive call-to-action paragraph (1–2 sentences)
+
+Include [primary keyword] + [location] again
+
+End with a strong CTA button label
+
+5. Optional SEO Boost (if needed)
+Add 3–5 keyword variations naturally within the content
+
+Keep tone aligned with [brand voice: luxury / playful / corporate / family-friendly]
+
+Output Requirements:
+Keep everything concise and conversion-focused
+
+Avoid fluff and repetition
+
+Ensure natural keyword placement (no keyword stuffing)"
+
+🔥 Example (Quick Fill)
+If you plugged in:
+
+Business: Gamma’s Yarn
+
+Type: Craft Store
+
+Location: Dallas-Fort Worth
+
+Keywords: yarn supplies, knitting, crochet
+
+You’d instantly get a full homepage structure ready to drop into your site.
+
+If you want, I can generate a real bundle for one of your brands (Gamma’s Yarn, Sweetopia, etc.) so you can plug it straight into your site.
+
+
+Turn the SEO Homepage Bundle Prompt into an md file. I am going to use that md file to create a set of buttons for a "generate with AI" I have on my site. The buttons will generate a pre-written prompt user can modify before generating the text.
+
+Here’s a clean, structured .md file you can plug directly into your system for button-driven prompt generation:
+
+# SEO Homepage Bundle Prompt
+
+Use this template to generate a complete, SEO-optimized homepage content bundle.
+
+---
+
+## Prompt
+
+Create a high-converting, SEO-optimized homepage content bundle for **[Business Name]**, a leading **[Business Type/Industry]** in **[City/Region]**.
+
+---
+
+## 1. Hero Section
+- Write a strong headline (6–10 words) that includes **[primary keyword]**
+- Add a compelling subheadline (1 sentence) featuring **[secondary keywords]** and **[unique value proposition]**
+- Include a clear CTA button (2–4 words), e.g., **[Book Now / Get Started / Shop Now]**
+
+---
+
+## 2. Welcome Section (Max 2 sentences)
+- Write a concise, engaging intro
+- Naturally include **[primary keyword] + [location]**
+- Mention **[core services/products]** and **[target audience]**
+- Do NOT start with "Welcome to"
+- Keep it inviting, clear, and benefit-driven
+
+---
+
+## 3. Value Proposition Bullets (3–5 bullets)
+- Highlight key benefits such as:
+  - **[Quality / Experience / Pricing / Speed / Trust]**
+- Keep each bullet under 10 words
+- Use action-oriented, customer-focused language
+
+---
+
+## 4. SEO CTA Section
+- Write a persuasive call-to-action paragraph (1–2 sentences)
+- Include **[primary keyword] + [location]**
+- End with a strong CTA button label
+
+---
+
+## 5. Optional SEO Boost
+- Add 3–5 keyword variations naturally within the content
+- Keep tone aligned with **[brand voice: luxury / playful / corporate / family-friendly]**
+
+---
+
+## Output Requirements
+- Keep everything concise and conversion-focused
+- Avoid fluff and repetition
+- Ensure natural keyword placement (no keyword stuffing)
+
+---
+
+## Optional Input Fields (for UI buttons)
+- Business Name:
+- Business Type/Industry:
+- City/Region:
+- Primary Keyword:
+- Secondary Keywords:
+- Unique Value Proposition:
+- Core Services/Products:
+- Target Audience:
+- CTA Button Text:
+- Brand Voice:
+If you want next step: I can break this into multiple smaller button prompts (Hero only, Welcome only, CTA only) so your UI feels more modular and interactive.
+
+
+Yes, break it into smaller buttons prompts. Also include a "Title", "About Us", and "Contact Us" section.
+
+Here’s a modular .md file designed for button-based prompt generation in your UI. Each section can power its own “Generate with AI” button.
+
+# AI Homepage Prompt Library (Modular Buttons)
+
+Use each section as an independent prompt users can edit before generating content.
+
+---
+
+## 🔹 HERO SECTION
+
+**Prompt:**
+
+Write a high-converting, SEO-optimized hero section for **[Business Name]**, a **[Business Type/Industry]** in **[City/Region]**.
+
+- Create a headline (6–10 words) using **[primary keyword]**
+- Write a subheadline (1 sentence) including **[secondary keywords]** and **[unique value proposition]**
+- Add a strong CTA button (2–4 words), e.g., **[Book Now / Get Started / Shop Now]**
+
+**Goal:** Grab attention instantly and communicate value clearly.
+
+---
+
+## 🔹 TITLE (PAGE / SEO TITLE)
+
+**Prompt:**
+
+Write an SEO-optimized title tag for **[Business Name]**, a **[Business Type/Industry]** in **[City/Region]**.
+
+- Include **[primary keyword]**
+- Optionally include **[secondary keyword]**
+- Keep it under 60 characters
+- Make it compelling for search results (click-worthy)
+
+---
+
+## 🔹 WELCOME SECTION
+
+**Prompt:**
+
+Write an engaging, SEO-optimized welcome section (max 2 sentences) for **[Business Name]**, a **[Business Type/Industry]** in **[City/Region]**.
+
+- Include **[primary keyword] + [location]**
+- Mention **[core services/products]** and **[target audience]**
+- Highlight **[unique value proposition]**
+- Do NOT start with "Welcome to"
+- Keep it short, inviting, and benefit-driven
+
+---
+
+## 🔹 ABOUT US
+
+**Prompt:**
+
+Write an SEO-friendly "About Us" section (3–5 sentences) for **[Business Name]**, a **[Business Type/Industry]** in **[City/Region]**.
+
+- Include **[primary keyword]** naturally
+- Describe **[brand story / mission / experience]**
+- Highlight **[what makes the business unique]**
+- Mention **[target audience or community served]**
+- Keep tone aligned with **[brand voice: luxury / playful / corporate / family-friendly]**
+
+---
+
+## 🔹 VALUE PROPOSITION BULLETS
+
+**Prompt:**
+
+Write 3–5 concise, SEO-friendly value proposition bullets for **[Business Name]**.
+
+- Focus on **[quality / experience / pricing / speed / trust]**
+- Each bullet must be under 10 words
+- Use action-oriented, customer-focused language
+- Optionally include **[keywords]** naturally
+
+---
+
+## 🔹 CTA SECTION
+
+**Prompt:**
+
+Write a persuasive, SEO-optimized call-to-action section for **[Business Name]**, a **[Business Type/Industry]** in **[City/Region]**.
+
+- Write 1–2 compelling sentences
+- Include **[primary keyword] + [location]**
+- Reinforce **[benefits or urgency]**
+- End with a strong CTA button label (2–4 words)
+
+---
+
+## 🔹 CONTACT US
+
+**Prompt:**
+
+Write a friendly, SEO-aware "Contact Us" section (2–3 sentences) for **[Business Name]**, a **[Business Type/Industry]** in **[City/Region]**.
+
+- Encourage users to reach out for **[services/products]**
+- Include **[location]** and **[primary keyword]**
+- Mention **[phone/email/visit/storefront if applicable]**
+- Keep tone approachable and action-driven
+
+---
+
+## 🔹 OPTIONAL SEO BOOST
+
+**Prompt:**
+
+Enhance the content with 3–5 natural keyword variations for **[Business Type/Industry]** in **[City/Region]**.
+
+- Avoid keyword stuffing
+- Maintain readability and flow
+- Align with **[brand voice]**
+
+---
+
+## 🔹 OPTIONAL INPUT FIELDS (FOR UI)
+
+- Business Name:
+- Business Type/Industry:
+- City/Region:
+- Primary Keyword:
+- Secondary Keywords:
+- Unique Value Proposition:
+- Core Services/Products:
+- Target Audience:
+- Brand Story/Mission:
+- CTA Button Text:
+- Contact Info:
+- Brand Voice:
+If you want next level: I can convert this into a JSON config for your Angular app buttons (with labels, icons, and prompt injection logic).
+
+
+
+
